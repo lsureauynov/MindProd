@@ -1,0 +1,16 @@
+[
+  {
+    "model": "game.scenario",
+    "pk": 1,
+    "fields": {
+      "scenario": "Le Manoir Hanté"
+    }
+  },
+  {
+    "model": "game.scenario",
+    "pk": 2,
+    "fields": {
+      "scenario": "La Disparition du Scientifique"
+    }
+  }
+]

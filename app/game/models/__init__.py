@@ -9,3 +9,4 @@ from game.models.discovered_clue import DiscoveredClue
 from game.models.player import Player
 from game.models.session import Session
 from game.models.story import Story
+from game.models.characters_reveal_clue import CharactersRevealClue

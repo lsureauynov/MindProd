@@ -1,0 +1,20 @@
+[
+  {
+    "model": "game.clue",
+    "pk": 1,
+    "fields": {
+      "description": "Une empreinte de chaussure près de la scène du crime.",
+      "image_url": "https://example.com/empreinte.jpg",
+      "story": 1
+    }
+  },
+  {
+    "model": "game.clue",
+    "pk": 2,
+    "fields": {
+      "description": "Un carnet de notes avec des calculs étranges.",
+      "image_url": "https://example.com/carnet.jpg",
+      "story": 2
+    }
+  }
+]

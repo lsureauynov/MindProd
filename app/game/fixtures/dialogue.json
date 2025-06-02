@@ -1,0 +1,26 @@
+[
+  {
+    "model": "game.dialogue",
+    "pk": 1,
+    "fields": {
+      "character": 1,
+      "session": 1,
+      "player": 1,
+      "character_answer": "Je n'ai rien vu d'inhabituel.",
+      "player_question": "Avez-vous remarqué quelque chose de suspect ?",
+      "created_at": "2025-06-01"
+    }
+  },
+  {
+    "model": "game.dialogue",
+    "pk": 2,
+    "fields": {
+      "character": 2,
+      "session": 2,
+      "player": 2,
+      "character_answer": "Il y avait un bruit étrange dans le laboratoire.",
+      "player_question": "Que s'est-il passé avant la disparition ?",
+      "created_at": "2025-06-02"
+    }
+  }
+]

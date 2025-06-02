@@ -1,0 +1,22 @@
+[
+  {
+    "model": "game.story",
+    "pk": 1,
+    "fields": {
+      "title": "Le Mystère du Manoir",
+      "resume": "Une enquête complexe dans un manoir ancien.",
+      "image_url": "https://example.com/manoir.jpg",
+      "scenario": 1
+    }
+  },
+  {
+    "model": "game.story",
+    "pk": 2,
+    "fields": {
+      "title": "La Disparition Étrange",
+      "resume": "Un scientifique renommé a disparu.",
+      "image_url": "https://example.com/scientifique.jpg",
+      "scenario": 2
+    }
+  }
+]

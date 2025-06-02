@@ -1,0 +1,26 @@
+[
+  {
+    "model": "game.character",
+    "pk": 1,
+    "fields": {
+      "name": "Inspecteur Lefèvre",
+      "role_id": "suspect",
+      "image_url": "https://example.com/lefevre.jpg",
+      "is_guilty": false,
+      "personality": "Curieux et méthodique",
+      "story": 1
+    }
+  },
+  {
+    "model": "game.character",
+    "pk": 2,
+    "fields": {
+      "name": "Docteur Moreau",
+      "role_id": "witness",
+      "image_url": "https://example.com/moreau.jpg",
+      "is_guilty": false,
+      "personality": "Nerveux et secret",
+      "story": 1
+    }
+  }
+]
