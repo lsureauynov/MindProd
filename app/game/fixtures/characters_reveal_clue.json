@@ -1,0 +1,20 @@
+[
+  {
+    "model": "game.charactersrevealclue",
+    "pk": 1,
+    "fields": {
+      "character": 1,
+      "clue": 1,
+      "conditions": "Doit être interrogé après la découverte de l'empreinte."
+    }
+  },
+  {
+    "model": "game.charactersrevealclue",
+    "pk": 2,
+    "fields": {
+      "character": 2,
+      "clue": 2,
+      "conditions": "Doit être interrogé après la découverte du carnet."
+    }
+  }
+]

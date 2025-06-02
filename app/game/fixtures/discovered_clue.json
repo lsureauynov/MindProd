@@ -1,0 +1,18 @@
+[
+  {
+    "model": "game.discoveredclue",
+    "pk": 1,
+    "fields": {
+      "session": 1,
+      "clue": 1
+    }
+  },
+  {
+    "model": "game.discoveredclue",
+    "pk": 2,
+    "fields": {
+      "session": 2,
+      "clue": 2
+    }
+  }
+]

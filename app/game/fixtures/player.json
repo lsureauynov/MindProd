@@ -1,0 +1,20 @@
+[
+  {
+    "model": "game.player",
+    "pk": 1,
+    "fields": {
+      "username": "Joueur1",
+      "image_url": "https://example.com/joueur1.jpg",
+      "user": 1
+    }
+  },
+  {
+    "model": "game.player",
+    "pk": 2,
+    "fields": {
+      "username": "Joueur2",
+      "image_url": "https://example.com/joueur2.jpg",
+      "user": 2
+    }
+  }
+]
