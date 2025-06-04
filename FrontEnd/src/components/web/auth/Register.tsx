@@ -26,8 +26,10 @@ const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    surname: '',
     email: '',
-    password: ''
+    password: '',
+    image_url: 'https://example.com/default-avatar.jpg' // URL par défaut
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,10 +90,29 @@ const Register: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <VStack spacing={4}>
                 <FormControl isRequired>
-                  <FormLabel color="whiteAlpha.900">Nom</FormLabel>
+                  <FormLabel color="whiteAlpha.900">Prénom</FormLabel>
                   <Input
                     name="name"
                     value={formData.name}
+                    onChange={handleChange}
+                    bg="gray.700"
+                    border="none"
+                    color="white"
+                    _hover={{
+                      bg: "gray.600",
+                    }}
+                    _focus={{
+                      bg: "gray.600",
+                      borderColor: "brand.primary.400",
+                    }}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel color="whiteAlpha.900">Nom</FormLabel>
+                  <Input
+                    name="surname"
+                    value={formData.surname}
                     onChange={handleChange}
                     bg="gray.700"
                     border="none"
@@ -112,6 +133,26 @@ const Register: React.FC = () => {
                     name="email"
                     type="email"
                     value={formData.email}
+                    onChange={handleChange}
+                    bg="gray.700"
+                    border="none"
+                    color="white"
+                    _hover={{
+                      bg: "gray.600",
+                    }}
+                    _focus={{
+                      bg: "gray.600",
+                      borderColor: "brand.primary.400",
+                    }}
+                  />
+                </FormControl>
+
+                <FormControl isRequired>
+                  <FormLabel color="whiteAlpha.900">URL de l'image de profil</FormLabel>
+                  <Input
+                    name="image_url"
+                    type="url"
+                    value={formData.image_url}
                     onChange={handleChange}
                     bg="gray.700"
                     border="none"

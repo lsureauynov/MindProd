@@ -19,12 +19,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const toast = useToast();
 
   useEffect(() => {
-    // Vérifier l'authentification au chargement
     const checkAuth = async () => {
       try {
         const token = authService.getAccessToken();
         if (token) {
-          // Tenter de rafraîchir le token
           const tokens = await authService.refreshToken();
           setIsAuthenticated(!!tokens);
         }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Image, Text, Button, VStack, useToast, Collapse, Icon } from '@chakra-ui/react';
+import { Box, Image, Text, Button, VStack, Collapse, Icon } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import type { Character } from '../types';
 
@@ -10,7 +10,6 @@ interface CharacterCardProps {
 
 export const CharacterCard: React.FC<CharacterCardProps> = ({ character, onTalkClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const toast = useToast();
 
   const handleTalkClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -39,7 +38,7 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, onTalkC
       cursor="pointer"
     >
       <Image
-        src={character.image}
+        src={character.image_url}
         alt={character.name}
         height="200px"
         width="100%"
@@ -90,7 +89,7 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, onTalkC
                 fontSize="sm" 
                 color="whiteAlpha.800"
               >
-                {character.description}
+                {character.personality}
               </Text>
             </Box>
             <Box>

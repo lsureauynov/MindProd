@@ -12,32 +12,43 @@ import {
   useBreakpointValue,
   Flex,
   useToast,
-  Avatar,
   Text,
   Collapse,
-  Icon,
+  Image,
+  useDisclosure,
+  Spinner,
+  Center
 } from '@chakra-ui/react';
 import { ArrowBackIcon, ArrowForwardIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import type { Message, DialogueCharacter } from './types';
 import type { Clue } from '../gameMenu/types';
 import { MessageBubble } from './components/MessageBubble';
 import { CluesList } from './components/CluesList';
+import { GameService } from '../../../services/game/gameService';
+import type {DiscoveredClue} from "../gameMenu/types";
 
 const Dialogue: React.FC = () => {
-  const { id, characterId } = useParams<{ id: string; characterId: string }>();
+  const { id: storyId, characterId } = useParams<{ id: string; characterId: string }>();
   const navigate = useNavigate();
   const toast = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [isCluesExpanded, setIsCluesExpanded] = useState(false);
-  const [isCharacterInfoExpanded, setIsCharacterInfoExpanded] = useState(true);
+  const [_isCluesExpanded, setIsCluesExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { isOpen: isCharacterInfoExpanded, onToggle: onToggleCharacterInfo } = useDisclosure();
   
   const containerWidth = useBreakpointValue({ base: "100%", md: "90%", lg: "80%", xl: "70%" });
   const inputHeight = useBreakpointValue({ base: "60px", md: "70px" });
   
+  const [character, setCharacter] = useState<DialogueCharacter | null>(null);
+  const [clues, setClues] = useState<Clue[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [discoveredClues] = useState<DiscoveredClue[]>([]);
+
+
   useEffect(() => {
-    if (!id || !characterId) {
+    if (!storyId || !characterId) {
       toast({
         title: "Erreur",
         description: "Paramètres manquants pour le dialogue",
@@ -48,28 +59,43 @@ const Dialogue: React.FC = () => {
       navigate('/');
       return;
     }
-  }, [id, characterId, navigate, toast]);
+  }, [storyId, characterId, navigate, toast]);
   
-  // Mock data - À remplacer par des appels API réels
-  const mockCharacter: DialogueCharacter = {
-    id: characterId || '',
-    name: characterId === '1' ? 'Jean Dupont' : 'Marie Martin',
-    image: characterId === '1' 
-      ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e'
-      : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-    type: 'suspect',
-    description: characterId === '1'
-      ? 'Un homme d\'affaires ambitieux et charismatique, connu pour son tempérament impulsif.'
-      : 'Une comptable méticuleuse avec un sens aigu du détail et une réputation d\'intégrité.',
-    backstory: characterId === '1'
-      ? 'Associé principal de la victime dans plusieurs projets immobiliers controversés. A été vu en train de se disputer violemment avec elle la veille du drame.'
-      : 'A découvert des irrégularités dans les comptes de la société quelques jours avant le meurtre. Menacée de licenciement par la victime.'
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!storyId || !characterId) return;
+      
+      try {
+        setLoading(true);
+        const gameService = GameService.getInstance();
+        
+        // Charger les informations du personnage
+        const characters = await gameService.getSuspects(storyId);
+        const character = characters.find(c => c.id === characterId);
+        
+        if (!character) {
+          const witnesses = await gameService.getWitnesses(storyId);
+          const witness = witnesses.find(w => w.id === characterId);
+          if (witness) {
+            setCharacter(witness);
+          }
+        } else {
+          setCharacter(character);
+        }
+        
+        // Charger les indices
+        const cluesData = await gameService.getClues(storyId);
+        setClues(cluesData);
+        
+      } catch (err) {
+        setError("Erreur lors du chargement des données");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const mockClues: Clue[] = [
-    { id: '1', name: 'Empreintes', description: 'Des empreintes digitales ont été trouvées sur la poignée de porte.' },
-    { id: '2', name: 'Note', description: 'Une note mystérieuse a été découverte dans la chambre.' },
-  ];
+    fetchData();
+  }, [storyId, characterId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -111,8 +137,24 @@ const Dialogue: React.FC = () => {
   };
 
   const handleBackToMenu = () => {
-    navigate(`/game/${id}`);
+    navigate(`/game/${storyId}`);
   };
+
+  if (loading) {
+    return (
+      <Center h="100vh">
+        <Spinner size="xl" color="brand.primary.500" />
+      </Center>
+    );
+  }
+
+  if (error || !character) {
+    return (
+      <Center h="100vh">
+        <Text color="red.500">{error || "Personnage non trouvé"}</Text>
+      </Center>
+    );
+  }
 
   return (
     <Box 
@@ -152,50 +194,46 @@ const Dialogue: React.FC = () => {
           <Box
             bg="gray.800"
             borderRadius="xl"
-            borderWidth="1px"
-            borderColor="whiteAlpha.200"
-            mb={4}
             overflow="hidden"
+            boxShadow="xl"
           >
-            <Box
-              p={4}
-              bg="rgba(26, 32, 44, 0.8)"
-              backdropFilter="blur(8px)"
-              cursor="pointer"
-              onClick={() => setIsCharacterInfoExpanded(!isCharacterInfoExpanded)}
-            >
-              <Flex align="center" justify="space-between">
-                <HStack spacing={4}>
-                  <Avatar
-                    size="lg"
-                    name={mockCharacter.name}
-                    src={mockCharacter.image}
-                  />
-                  <Box>
-                    <Text
-                      fontSize="xl"
-                      fontWeight="bold"
-                      color="whiteAlpha.900"
-                    >
-                      {mockCharacter.name}
-                    </Text>
-                    <Text
-                      fontSize="sm"
-                      color="whiteAlpha.700"
-                      textTransform="capitalize"
-                    >
-                      {mockCharacter.type}
-                    </Text>
-                  </Box>
-                </HStack>
-                <Icon
-                  as={isCharacterInfoExpanded ? ChevronUpIcon : ChevronDownIcon}
-                  w={6}
-                  h={6}
-                  color="whiteAlpha.600"
-                />
-              </Flex>
-              
+            <Box position="relative">
+              <Image
+                src={character.image_url}
+                alt={character.name}
+                w="full"
+                h="300px"
+                objectFit="cover"
+              />
+              <Box
+                position="absolute"
+                bottom={0}
+                left={0}
+                right={0}
+                bg="rgba(0, 0, 0, 0.7)"
+                p={4}
+              >
+                <Text
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  color="white"
+                >
+                  {character.name}
+                </Text>
+              </Box>
+            </Box>
+
+            <Box p={6}>
+              <Button
+                onClick={onToggleCharacterInfo}
+                variant="ghost"
+                width="full"
+                rightIcon={isCharacterInfoExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                mb={4}
+              >
+                Informations sur le personnage
+              </Button>
+
               <Collapse in={isCharacterInfoExpanded} animateOpacity>
                 <VStack spacing={3} mt={4} align="stretch">
                   <Box>
@@ -211,7 +249,7 @@ const Dialogue: React.FC = () => {
                       fontSize="sm"
                       color="whiteAlpha.800"
                     >
-                      {mockCharacter.description}
+                      {character.personality}
                     </Text>
                   </Box>
                   <Box>
@@ -227,7 +265,7 @@ const Dialogue: React.FC = () => {
                       fontSize="sm"
                       color="whiteAlpha.800"
                     >
-                      {mockCharacter.backstory}
+                      {character.backstory}
                     </Text>
                   </Box>
                 </VStack>
@@ -284,7 +322,7 @@ const Dialogue: React.FC = () => {
                   <MessageBubble
                     key={message.id}
                     message={message}
-                    characterImage={mockCharacter.image}
+                    characterImage={character.image_url}
                   />
                 ))}
                 <div ref={messagesEndRef} />
@@ -345,7 +383,8 @@ const Dialogue: React.FC = () => {
 
           <Box mt={6}>
             <CluesList 
-              clues={mockClues} 
+              clues={clues}
+              discoveredClues={discoveredClues}
               onExpandChange={setIsCluesExpanded}
             />
           </Box>

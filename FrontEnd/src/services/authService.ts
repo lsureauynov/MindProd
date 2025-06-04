@@ -1,7 +1,5 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { APP_CONFIG } from '../config/constants';
-
-const API_URL = `${APP_CONFIG.API.BASE_URL}/auth`;
 
 // Types
 export type LoginCredentials = {
@@ -11,42 +9,29 @@ export type LoginCredentials = {
 
 export type RegisterCredentials = LoginCredentials & {
   name: string;
+  surname: string;
+  image_url: string;
 };
 
 export type AuthTokens = {
-  accessToken: string;
-  refreshToken: string;
-};
-
-// Mock JWT Token Generator
-const generateMockJWT = (payload: any, expiresIn: number = 3600): string => {
-  const header = {
-    alg: 'HS256',
-    typ: 'JWT'
-  };
-
-  const now = Math.floor(Date.now() / 1000);
-  const exp = now + expiresIn;
-
-  const tokenPayload = {
-    ...payload,
-    iat: now,
-    exp
-  };
-
-  // Encode en base64
-  const base64Header = btoa(JSON.stringify(header));
-  const base64Payload = btoa(JSON.stringify(tokenPayload));
-  const mockSignature = 'mock_signature';
-
-  return `${base64Header}.${base64Payload}.${mockSignature}`;
+  access: string;
+  refresh: string;
 };
 
 class AuthService {
   private static instance: AuthService;
-  private refreshTokenTimeout?: NodeJS.Timeout;
+  private refreshingPromise: Promise<AuthTokens | null> | null = null;
 
-  private constructor() {}
+
+  private constructor() {
+    axios.interceptors.request.use(config => {
+      const token = this.getAccessToken();
+      if (token && config.headers) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+      return config;
+    });
+  }
 
   static getInstance(): AuthService {
     if (!AuthService.instance) {
@@ -56,119 +41,78 @@ class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<AuthTokens> {
-    // Simuler un délai de réseau
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Vérifier les credentials (mock)
-    if (credentials.email === 'test@test.com' && credentials.password === 'test123') {
-      const mockTokens = {
-        accessToken: generateMockJWT({ 
-          email: credentials.email,
-          role: 'user'
-        }, 3600), // 1 heure
-        refreshToken: generateMockJWT({
-          email: credentials.email,
-          tokenType: 'refresh'
-        }, 86400) // 24 heures
-      };
-
-      this.setTokens(mockTokens);
-      this.startRefreshTokenTimer();
-      return mockTokens;
+    try {
+      const response = await axios.post<AuthTokens>(`${APP_CONFIG.API.BASE_URL}/login/`, credentials);
+      const tokens = response.data;
+      this.setTokens(tokens);
+      return tokens;
+    } catch (error: unknown) {
+      if (this.isAxiosErrorWithResponse(error)) {
+        throw new Error(error.response?.data?.message || 'Invalid credentials');
+      }
+      throw new Error('Failed to login');
     }
-
-    throw new Error('Invalid credentials');
   }
 
-  async register(credentials: RegisterCredentials): Promise<AuthTokens> {
-    // Simuler un délai de réseau
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const mockTokens = {
-      accessToken: generateMockJWT({ 
-        email: credentials.email,
-        name: credentials.name,
-        role: 'user'
-      }, 3600),
-      refreshToken: generateMockJWT({
-        email: credentials.email,
-        tokenType: 'refresh'
-      }, 86400)
-    };
-
-    this.setTokens(mockTokens);
-    this.startRefreshTokenTimer();
-    return mockTokens;
+  async register(credentials: RegisterCredentials): Promise<void> {
+    try {
+      await axios.post(`${APP_CONFIG.API.BASE_URL}/register/`, credentials);
+    } catch (error: unknown) {
+      if (this.isAxiosErrorWithResponse(error)) {
+        throw new Error(error.response?.data?.message || 'Registration failed');
+      }
+      throw new Error('Failed to register');
+    }
   }
 
   async refreshToken(): Promise<AuthTokens | null> {
-    try {
-      const refreshToken = this.getRefreshToken();
-      if (!refreshToken) return null;
+    if (this.refreshingPromise) {
+      return this.refreshingPromise;
+    }
 
-      // Simuler un délai de réseau
-      await new Promise(resolve => setTimeout(resolve, 200));
-
-      // Décoder le refresh token pour obtenir l'email (dans un vrai système, ceci serait vérifié côté serveur)
-      const [, payloadBase64] = refreshToken.split('.');
-      const payload = JSON.parse(atob(payloadBase64));
-
-      const mockTokens = {
-        accessToken: generateMockJWT({ 
-          email: payload.email,
-          role: 'user'
-        }, 3600),
-        refreshToken: generateMockJWT({
-          email: payload.email,
-          tokenType: 'refresh'
-        }, 86400)
-      };
-
-      this.setTokens(mockTokens);
-      this.startRefreshTokenTimer();
-      return mockTokens;
-    } catch (error) {
-      this.logout();
+    const refresh = this.getRefreshToken();
+    if (!refresh) {
       return null;
     }
+
+    this.refreshingPromise = axios.post<AuthTokens>(`${APP_CONFIG.API.BASE_URL}/token/refresh/`, { refresh })
+        .then(response => {
+          const tokens = response.data;
+          this.setTokens(tokens);
+          return tokens;
+        })
+        .catch(() => {
+          this.logout();
+          return null;
+        })
+        .finally(() => {
+          this.refreshingPromise = null;
+        });
+
+    return this.refreshingPromise;
   }
 
   logout(): void {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    this.stopRefreshTokenTimer();
+    localStorage.removeItem('access');
+    localStorage.removeItem('refresh');
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem('accessToken');
+    return localStorage.getItem('access');
   }
 
   private getRefreshToken(): string | null {
-    return localStorage.getItem('refreshToken');
+    return localStorage.getItem('refresh');
   }
 
   private setTokens(tokens: AuthTokens): void {
-    localStorage.setItem('accessToken', tokens.accessToken);
-    localStorage.setItem('refreshToken', tokens.refreshToken);
+    localStorage.setItem('access', tokens.access);
+    localStorage.setItem('refresh', tokens.refresh);
   }
 
-  private startRefreshTokenTimer(): void {
-    const accessToken = this.getAccessToken();
-    if (!accessToken) return;
-
-    const [, payloadBase64] = accessToken.split('.');
-    const jwtToken = JSON.parse(atob(payloadBase64));
-    const expires = new Date(jwtToken.exp * 1000);
-    const timeout = expires.getTime() - Date.now() - (60 * 1000); // Refresh 1 minute avant expiration
-
-    this.refreshTokenTimeout = setTimeout(() => this.refreshToken(), timeout);
-  }
-
-  private stopRefreshTokenTimer(): void {
-    if (this.refreshTokenTimeout) {
-      clearTimeout(this.refreshTokenTimeout);
-    }
+  private isAxiosErrorWithResponse(error: unknown): error is { response: { data?: { message?: string } } } {
+    return isAxiosError(error) && !!error.response;
   }
 }
 
-export default AuthService.getInstance(); 
+export default AuthService.getInstance();

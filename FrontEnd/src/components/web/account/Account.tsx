@@ -47,13 +47,6 @@ interface SecuritySettings {
   newEmail: string;
 }
 
-interface UserStats {
-  storiesPlayed: number;
-  storiesCompleted: number;
-  accuracy: number;
-}
-
-// Composant pour le header du profil
 const ProfileHeader: React.FC<{ userProfile: UserProfile }> = ({ userProfile }) => (
   <Box textAlign="center">
     <Avatar

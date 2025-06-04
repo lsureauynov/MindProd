@@ -41,7 +41,7 @@ export const SuspectCard: React.FC<SuspectCardProps> = ({
       }}
     >
       <Image
-        src={suspect.image}
+        src={suspect.image_url}
         alt={suspect.name}
         height="200px"
         width="100%"

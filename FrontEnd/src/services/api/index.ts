@@ -1,15 +1,12 @@
 import axios from 'axios';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+import { APP_CONFIG} from "../../config/constants.ts";
 
 const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+    baseURL: APP_CONFIG.API.BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
-
-// Intercepteur pour ajouter le token d'authentification
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -18,7 +15,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Intercepteur pour gérer les erreurs
 api.interceptors.response.use(
   (response) => response,
   (error) => {

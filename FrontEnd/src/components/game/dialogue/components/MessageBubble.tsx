@@ -3,7 +3,6 @@ import {
   Box,
   Text,
   Avatar,
-  HStack,
   useBreakpointValue,
   Flex,
 } from '@chakra-ui/react';

@@ -8,8 +8,8 @@ export interface AccusationState {
 
 export interface AccusationProps {
   suspects: Character[];
-  correctSuspectId: string;
   onReturn: () => void;
+  onAccuse: (suspectId: string) => void;
 }
 
 export interface SuspectCardProps {

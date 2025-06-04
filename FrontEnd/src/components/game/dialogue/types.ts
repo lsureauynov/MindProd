@@ -6,15 +6,16 @@ export interface Message {
 }
 
 export interface DialogueCharacter {
-  id: string;
   name: string;
-  image: string;
-  type: 'suspect' | 'witness';
-  description: string;
+  image_url: string;
+  role: 'Suspect' | 'Witness';
+  personality: string;
   backstory: string;
+  story: string;
 }
 
 export interface DialogueState {
   messages: Message[];
   character: DialogueCharacter;
-} 
+}
+

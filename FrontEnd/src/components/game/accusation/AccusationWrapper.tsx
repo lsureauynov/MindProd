@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 import Accusation from './Accusation';
+import { GameService } from '../../../services/game/gameService';
 import type { Character } from '../gameMenu/types';
 
 const AccusationWrapper: React.FC = () => {
@@ -9,34 +10,86 @@ const AccusationWrapper: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const [suspects, setSuspects] = useState<Character[]>([]);
-  const [correctSuspectId, setCorrectSuspectId] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Mock data - À remplacer par un appel API
-    const mockSuspects: Character[] = [
-      { id: '1', name: 'Jean Dupont', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e' },
-      { id: '2', name: 'Marie Martin', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330' },
-    ];
-    
-    // Simuler que Jean Dupont est le coupable
-    const mockCorrectSuspectId = '1';
+    const fetchSuspects = async () => {
+      if (!id) return;
+      
+      try {
+        setLoading(true);
+        const gameService = GameService.getInstance();
+        const suspectsData = await gameService.getSuspects(id);
+        setSuspects(suspectsData);
+      } catch (err) {
+        setError("Erreur lors du chargement des suspects");
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les suspects",
+          status: "error",
+          duration: 5000,
+          isClosable: true
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setSuspects(mockSuspects);
-    setCorrectSuspectId(mockCorrectSuspectId);
-  }, []);
+    fetchSuspects();
+  }, [id, toast]);
 
   const handleReturn = () => {
     navigate(`/game/${id}`);
   };
 
-  if (!suspects.length || !correctSuspectId) {
-    return null; // Ou un composant de chargement
+  const handleAccusation = async (suspectId: string) => {
+    if (!id) return;
+    
+    try {
+      const gameService = GameService.getInstance();
+      const result = await gameService.makeAccusation(id, suspectId);
+      
+      if (result.correct) {
+        toast({
+          title: "Félicitations !",
+          description: "Vous avez trouvé le coupable !",
+          status: "success",
+          duration: 5000,
+          isClosable: true
+        });
+      } else {
+        toast({
+          title: "Mauvaise accusation",
+          description: "Ce n'est pas le bon suspect. Continuez à chercher !",
+          status: "error",
+          duration: 5000,
+          isClosable: true
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de faire l'accusation",
+        status: "error",
+        duration: 5000,
+        isClosable: true
+      });
+    }
+  };
+
+  if (loading) {
+    return <div>Chargement...</div>;
+  }
+
+  if (error || !suspects.length) {
+    return <div>Erreur : {error || "Aucun suspect trouvé"}</div>;
   }
 
   return (
     <Accusation
       suspects={suspects}
-      correctSuspectId={correctSuspectId}
+      onAccuse={handleAccusation}
       onReturn={handleReturn}
     />
   );
