@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from game.views import (
+
+from game.view import (
     ScenarioViewSet, AccusationViewSet, CharacterViewSet,
     CharacterAttributeViewSet, ClueViewSet,
     DialogueViewSet, DiscoveredClueViewSet, PlayerViewSet,
-    SessionViewSet, StoryViewSet
+    SessionViewSet, StoryViewSet, CharactersRevealClueViewSet
 )
 
 router = DefaultRouter()
@@ -18,6 +19,8 @@ router.register(r'discovered-clues', DiscoveredClueViewSet)
 router.register(r'players', PlayerViewSet)
 router.register(r'sessions', SessionViewSet)
 router.register(r'stories', StoryViewSet)
+router.register(r'characters-reveal-clue', CharactersRevealClueViewSet)
+
 
 urlpatterns = [
     path('', include(router.urls)),
