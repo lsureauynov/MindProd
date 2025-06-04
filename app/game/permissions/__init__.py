@@ -1,0 +1,3 @@
+from game.permissions.session_permissions import IsSessionOwner
+from game.permissions.dialogue_permissions import IsDialogueOwner
+from game.permissions.player_permissions import IsPlayerOwner
