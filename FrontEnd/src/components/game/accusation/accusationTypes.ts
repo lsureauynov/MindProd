@@ -1,4 +1,4 @@
-import type { Character } from '../gameMenu/types';
+import type { Character } from '../gameMenu/gameMenuTypes.ts';
 
 export interface AccusationState {
   selectedSuspect: Character | null;

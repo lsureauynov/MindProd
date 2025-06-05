@@ -6,7 +6,7 @@ import {
   IconButton,
 } from '@chakra-ui/react';
 import { ChevronUpIcon, ChevronDownIcon } from '@chakra-ui/icons';
-import type { Clue, DiscoveredClue } from '../../gameMenu/types';
+import type { Clue, DiscoveredClue } from '../../gameMenu/gameMenuTypes.ts';
 import { ClueCard } from '../../gameMenu/components/ClueCard';
 
 interface CluesListProps {

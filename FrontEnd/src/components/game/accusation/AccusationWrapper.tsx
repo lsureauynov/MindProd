@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 import Accusation from './Accusation';
 import { GameService } from '../../../services/game/gameService';
-import type { Character } from '../gameMenu/types';
+import type { Character } from '../gameMenu/gameMenuTypes.ts';
 
 const AccusationWrapper: React.FC = () => {
   const { id } = useParams<{ id: string }>();

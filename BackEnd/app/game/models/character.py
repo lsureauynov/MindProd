@@ -15,6 +15,7 @@ class Character(models.Model):
     is_guilty = models.BooleanField()
     personality = models.TextField()
     story = models.ForeignKey(Story, on_delete=models.CASCADE)
+    backstory = models.TextField(default='')
 
     def __str__(self):
         return self.name

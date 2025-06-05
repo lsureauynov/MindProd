@@ -85,6 +85,30 @@ cd BackEnd && docker compose build
 cd BackEnd && docker compose up
 ```
 
+Ensuite, il faut effectuer la migration des données : 
+```bash
+docker exec -it mindprod_api python manage.py makemigrations
+docker exec -it mindprod_api python manage.py migrate
+```
+
+Si on veut migrer de fausses données : 
+```bash
+cd BackEnd
+docker exec -it mindprod_api sh
+python load_dev_data.py
+```
+ou
+```bash
+python load_dev_data.py --flush
+```
+
+Pour créer un superUser :
+```bash
+cd BackEnd
+docker exec -it mindprod_api sh
+python manage.py createsuperuser
+```
+
 ## 🎮 Fonctionnalités du Jeu
 
 - **Système d'Enquête**

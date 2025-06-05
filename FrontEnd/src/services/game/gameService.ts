@@ -1,5 +1,5 @@
 import api from '../api';
-import type { Character, Clue, GameState, Dialogue } from '../../types';
+import type { Character, Clue, Session, Dialogue } from '../../types';
 
 export class GameService {
   private static instance: GameService;
@@ -12,7 +12,7 @@ export class GameService {
     return GameService.instance;
   }
 
-  async getGameState(storyId: string): Promise<GameState> {
+  async getGameState(storyId: string): Promise<Session> {
     const response = await api.get(`/sessions/${storyId}`);
     return response.data;
   }
@@ -21,28 +21,28 @@ export class GameService {
     const response = await api.get(`/characters/`, {
       params: { story_id: storyId, type: 'SUSPECT' }
     });
-    return response.data;
+    return response.data.results;
   }
 
   async getWitnesses(storyId: string): Promise<Character[]> {
     const response = await api.get(`/characters/`, {
       params: { story_id: storyId, type: 'WITNESS' }
     });
-    return response.data;
+    return response.data.results;
   }
 
   async getClues(storyId: string): Promise<Clue[]> {
     const response = await api.get(`/clues/`, {
       params: { story_id: storyId }
     });
-    return response.data;
+    return response.data.results;
   }
 
   async getDialogue(storyId: string, characterId: string): Promise<Dialogue> {
     const response = await api.get(`/dialogues/`, {
       params: { story_id: storyId, character_id: characterId }
     });
-    return response.data[0];
+    return response.data.results;
   }
 
   async makeAccusation(storyId: string, suspectId: string): Promise<{ correct: boolean }> {
@@ -51,7 +51,7 @@ export class GameService {
       character_id: suspectId
     });
     return {
-      correct: response.data.is_correct
+      correct: response.data.results.is_correct
     };
   }
 
@@ -70,7 +70,7 @@ export class GameService {
 
   async getStories(): Promise<any[]> {
     const response = await api.get('/stories/');
-    return response.data;
+    return response.data.results;
   }
 
   async getStoryById(storyId: string): Promise<any> {
@@ -78,24 +78,36 @@ export class GameService {
     return response.data;
   }
 
-  async startNewSession(storyId: string): Promise<GameState> {
+  async startNewSession(storyId: string): Promise<Session> {
     const response = await api.post('/sessions/', {
       story_id: storyId
     });
-    return response.data;
+    return response.data.results;
   }
 
   async getCharacterAttributes(characterId: string): Promise<any[]> {
     const response = await api.get(`/character-attributes/`, {
       params: { character_id: characterId }
     });
-    return response.data;
+    return response.data.results;
   }
 
   async getCharactersRevealingClue(clueId: string): Promise<any[]> {
     const response = await api.get(`/characters-reveal-clue/`, {
       params: { clue_id: clueId }
     });
-    return response.data;
+    return response.data.results;
   }
+
+  async createSession(player: string, story:string): Promise<Session> {
+    const response = await api.post('/sessions/', {
+      ended_at: null,
+      status:'playing',
+      remaining_lives: 3,
+      player: player,
+      story: story
+    });
+    return response.data.results;
+  }
+
 } 

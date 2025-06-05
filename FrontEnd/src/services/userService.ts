@@ -1,23 +1,10 @@
 import axios from 'axios';
 import { APP_CONFIG } from '../config/constants';
+import type { UserProfile, UserStats } from './userTypes.ts';
 
-const API_URL = `${APP_CONFIG.API.BASE_URL}/users`;
+const API_URL = `${APP_CONFIG.API.BASE_URL}`;
 
-export interface UserProfile {
-  id: string;
-  name: string;
-  surname: string;
-  email: string;
-  image_url: string;
-}
-
-export interface UserStats {
-  storiesPlayed: number;
-  storiesCompleted: number;
-  accuracy: number;
-}
-
-class UserService {
+export class UserService {
   private static instance: UserService;
 
   private constructor() {}
@@ -40,7 +27,7 @@ class UserService {
 
   async updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
     try {
-      const response = await axios.patch(`${API_URL}/me`, data);
+      const response = await axios.patch(`${API_URL}/me/`, data);
       return response.data;
     } catch (error) {
       throw new Error('Failed to update user profile');
@@ -58,14 +45,14 @@ class UserService {
     }
   }
 
-  /*async getUserStats(): Promise<UserStats> {
+  async getUserStats(): Promise<UserStats> {
     try {
       const response = await axios.get(`${API_URL}/me/stats`);
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch user stats');
     }
-  }*/
+  }
 
   async deleteAccount(): Promise<void> {
     try {

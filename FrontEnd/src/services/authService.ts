@@ -1,22 +1,6 @@
 import axios, { isAxiosError } from 'axios';
 import { APP_CONFIG } from '../config/constants';
-
-// Types
-export type LoginCredentials = {
-  email: string;
-  password: string;
-};
-
-export type RegisterCredentials = LoginCredentials & {
-  name: string;
-  surname: string;
-  image_url: string;
-};
-
-export type AuthTokens = {
-  access: string;
-  refresh: string;
-};
+import type { AuthTokens, LoginCredentials, RegisterCredentials } from './userTypes.ts';
 
 class AuthService {
   private static instance: AuthService;

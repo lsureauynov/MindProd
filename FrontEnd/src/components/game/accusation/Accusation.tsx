@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { useAccusation } from './hooks/useAccusation';
 import { SuspectCard } from './components/SuspectCard';
-import type { AccusationProps } from './types';
+import type { AccusationProps } from './accusationTypes.ts';
 
 const Accusation: React.FC<AccusationProps> = ({
                                                  suspects,

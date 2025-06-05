@@ -53,7 +53,7 @@ export interface Session extends BaseEntity {
     player: string;
     story: string;
     ended_at: string;
-    status: 'active' | 'finished' | 'playing';
+    status: 'started' | 'finished' | 'playing';
     remaining_lives: number;
     created_at: string;
 }

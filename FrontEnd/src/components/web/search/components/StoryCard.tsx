@@ -9,20 +9,9 @@ import {
   VStack,
   Link,
 } from '@chakra-ui/react';
+import type { StoryCardProps} from "./../searchTypes";
 
-interface Story {
-  id: string;
-  title: string;
-  resume: string;
-  author: string;
-  imageUrl?: string;
-}
-
-interface StoryCardProps {
-  story: Story;
-}
-
-const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
+const StoryCard: React.FC<StoryCardProps> = ({story}) => {
   return (
     <Link
       as={RouterLink}
@@ -106,7 +95,6 @@ const StoryCard: React.FC<StoryCardProps> = ({ story }) => {
             color="brand.primary.400"
             fontFamily="mono"
           >
-            <Text>Par {story.author}</Text>
           </HStack>
         </VStack>
       </Box>

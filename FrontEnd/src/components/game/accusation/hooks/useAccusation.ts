@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@chakra-ui/react';
-import type { Character } from '../../gameMenu/types';
-import type { AccusationState } from '../types';
+import type { Character } from '../../gameMenu/gameMenuTypes.ts';
+import type { AccusationState } from '../accusationTypes.ts';
 
 export const useAccusation = (correctSuspectId: string, onReturn: () => void) => {
   const [state, setState] = useState<AccusationState>({

@@ -5,7 +5,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import type { SuspectCardProps } from '../types';
+import type { SuspectCardProps } from '../accusationTypes.ts';
 
 export const SuspectCard: React.FC<SuspectCardProps> = ({
   suspect,

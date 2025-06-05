@@ -20,12 +20,12 @@ import {
   Center
 } from '@chakra-ui/react';
 import { ArrowBackIcon, ArrowForwardIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import type { Message, DialogueCharacter } from './types';
-import type { Clue } from '../gameMenu/types';
+import type { Message, DialogueCharacter } from './dialogueTypes.ts';
+import type { Clue } from '../gameMenu/gameMenuTypes.ts';
 import { MessageBubble } from './components/MessageBubble';
 import { CluesList } from './components/CluesList';
 import { GameService } from '../../../services/game/gameService';
-import type {DiscoveredClue} from "../gameMenu/types";
+import type {DiscoveredClue} from "../gameMenu/gameMenuTypes.ts";
 
 const Dialogue: React.FC = () => {
   const { id: storyId, characterId } = useParams<{ id: string; characterId: string }>();

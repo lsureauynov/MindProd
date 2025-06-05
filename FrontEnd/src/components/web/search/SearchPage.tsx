@@ -16,15 +16,7 @@ import {
 import { SearchIcon } from '@chakra-ui/icons';
 import StoryCard from './components/StoryCard';
 import { GameService } from '../../../services/game/gameService';
-
-// Type pour une story
-interface Story {
-  id: string;
-  title: string;
-  resume: string;
-  author: string;
-  imageUrl?: string;
-}
+import type { Story } from './searchTypes';
 
 const SearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,11 +41,9 @@ const SearchPage: React.FC = () => {
     fetchStories();
   }, []);
 
-  // Filtrer les stories en fonction de la recherche
   const filteredStories = stories.filter(story =>
     story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    story.resume.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    story.author.toLowerCase().includes(searchQuery.toLowerCase())
+    story.resume.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (loading) {

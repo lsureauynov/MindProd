@@ -6,7 +6,7 @@ import {
   useBreakpointValue,
   Flex,
 } from '@chakra-ui/react';
-import type { Message } from '../types';
+import type { Message } from '../dialogueTypes.ts';
 
 interface MessageBubbleProps {
   message: Message;

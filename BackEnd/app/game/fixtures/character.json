@@ -8,6 +8,7 @@
       "image_url": "https://example.com/lefevre.jpg",
       "is_guilty": false,
       "personality": "Curieux et méthodique",
+      "backstory": "Inspecteur de police, Lefèvre est connu pour sa perspicacité et son attention aux détails. Il a résolu de nombreuses affaires complexes.",
       "story": 1
     }
   },
@@ -20,6 +21,7 @@
       "image_url": "https://example.com/moreau.jpg",
       "is_guilty": false,
       "personality": "Nerveux et secret",
+      "backstory": "Médecin légiste, Moreau a examiné le corps de la victime. Il cache des informations cruciales sur la scène du crime.",
       "story": 1
     }
   }
