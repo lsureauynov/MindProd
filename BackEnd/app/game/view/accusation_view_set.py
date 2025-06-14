@@ -1,13 +1,13 @@
 from drf_spectacular.utils import extend_schema
+from rest_framework.viewsets import ModelViewSet
 from game.models.accusation import Accusation
-from game.view.base_view_set import BaseViewSet
 from game.serializers import (AccusationSerializer)
 from rest_framework.response import Response
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
 
 @extend_schema(tags=['Accusation'])
-class AccusationViewSet(BaseViewSet):
+class AccusationViewSet(ModelViewSet):
     queryset = Accusation.objects.all()
     serializer_class = AccusationSerializer
     filter_backends = [DjangoFilterBackend]

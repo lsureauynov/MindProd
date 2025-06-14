@@ -2,10 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 import { GameService } from '../services/game/gameService';
-import type { Character, Clue, GameState } from '../types';
+import type { Character, Clue, Session, Accusation } from '../types';
 
 interface UseGameReturn {
-  gameState: GameState | null;
+  gameState: Session | null;
   suspects: Character[];
   witnesses: Character[];
   clues: Clue[];
@@ -14,10 +14,11 @@ interface UseGameReturn {
   makeAccusation: (suspectId: string) => Promise<boolean>;
   unlockClue: (clueId: string) => Promise<void>;
   startDialogue: (characterId: string) => void;
+  pastAccusations: (accusation : string) => void
 }
 
 export const useGame = (gameId: string): UseGameReturn => {
-  const [gameState, setGameState] = useState<GameState | null>(null);
+  const [gameState, setGameState] = useState<Session | null>(null);
   const [suspects, setSuspects] = useState<Character[]>([]);
   const [witnesses, setWitnesses] = useState<Character[]>([]);
   const [clues, setClues] = useState<Clue[]>([]);

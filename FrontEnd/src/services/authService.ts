@@ -1,6 +1,6 @@
 import axios, { isAxiosError } from 'axios';
 import { APP_CONFIG } from '../config/constants';
-import type { AuthTokens, LoginCredentials, RegisterCredentials } from './userTypes.ts';
+import type {AuthTokens, LoginCredentials, RegisterCredentials, UserProfile} from './userTypes.ts';
 
 class AuthService {
   private static instance: AuthService;
@@ -38,9 +38,10 @@ class AuthService {
     }
   }
 
-  async register(credentials: RegisterCredentials): Promise<void> {
+  async register(credentials: RegisterCredentials): Promise<UserProfile> {
     try {
-      await axios.post(`${APP_CONFIG.API.BASE_URL}/register/`, credentials);
+      const response = await axios.post<UserProfile>(`${APP_CONFIG.API.BASE_URL}/register/`, credentials);
+      return response.data;
     } catch (error: unknown) {
       if (this.isAxiosErrorWithResponse(error)) {
         throw new Error(error.response?.data?.message || 'Registration failed');

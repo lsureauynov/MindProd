@@ -18,11 +18,10 @@ export class PlayerService {
         return response.data;
     }
 
-    async createPlayer(name: string, surname: string, email: string, image_url: string): Promise<Player> {
+    async createPlayer(user: string, username: string, image_url: string): Promise<Player> {
         const response = await api.post(`/players/`, {
-            name,
-            surname,
-            email,
+            user,
+            username,
             image_url
         });
         return response.data;
@@ -47,5 +46,13 @@ export class PlayerService {
 
     async deletePlayer(playerId: string): Promise<void> {
         await api.delete(`/players/${playerId}`);
+    }
+
+    async getCurrentPlayer() {
+        const response = await api.get('/players/');
+        if (Array.isArray(response.data) && response.data.length > 0) {
+            return response.data[0];
+        }
+        throw new Error('Aucun joueur trouvé pour cet utilisateur.');
     }
 }

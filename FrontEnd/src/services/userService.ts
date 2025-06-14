@@ -61,6 +61,7 @@ export class UserService {
       throw new Error('Failed to delete account');
     }
   }
+
 }
 
 export default UserService.getInstance(); 

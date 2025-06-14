@@ -1,3 +1,4 @@
+from rest_framework.viewsets import ModelViewSet
 from game.models.session import Session
 from game.serializers import SessionSerializer
 from game.permissions.session_permissions import IsSessionOwner
@@ -8,11 +9,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
-from game.view.base_view_set import BaseViewSet
 
 
 @extend_schema(tags=['Session'])
-class SessionViewSet(BaseViewSet):
+class SessionViewSet(ModelViewSet):
     queryset = Session.objects.all()
     serializer_class = SessionSerializer
     permission_classes = [IsAuthenticated, IsSessionOwner]

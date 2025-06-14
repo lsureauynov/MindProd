@@ -8,3 +8,4 @@ class CharactersRevealClue(models.Model):
     character = models.ForeignKey(Character, on_delete=models.CASCADE)
     clue = models.ForeignKey(Clue, on_delete=models.CASCADE)
     conditions = models.TextField()
+    revelations = models.TextField()

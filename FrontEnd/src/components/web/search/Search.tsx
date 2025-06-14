@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, VStack, Spinner, Center, Text } from '@chakra-ui/react';
 import SearchHeader from './components/SearchHeader';
 import SearchResults from './components/SearchResults';
-import { GameService } from '../../../services/game/gameService';
+import { StoryService } from '../../../services/game/storiesService';
 import type { Story } from './searchTypes';
 
 const Search: React.FC = () => {
@@ -16,9 +16,8 @@ const Search: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const service = GameService.getInstance();
+        const service = StoryService.getInstance();
         const data = await service.getStories();
-        // Adapter ici les données brutes de l'API au type `Story`
         const formattedStories: Story[] = data.map((item: any) => ({
           id: item.id,
           title: item.title,

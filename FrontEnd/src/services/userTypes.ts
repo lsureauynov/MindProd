@@ -21,6 +21,7 @@ export type RegisterCredentials = LoginCredentials & {
     name: string;
     surname: string;
     image_url: string;
+    username: string;
 };
 
 export type AuthTokens = {

@@ -23,8 +23,18 @@ export class SessionService {
         return response.data;
     }
 
-    async updateSessionToStatusPlaying(sessionId: string, updates: Partial<Session>): Promise<Session> {
-        const response = await api.put(`/sessions/${sessionId}`, updates);
+    async updateSessionToStatusPlaying(sessionId: string): Promise<Session> {
+        const response = await api.patch(`/sessions/${sessionId}/mark-playing`)
+        return response.data;
+    }
+
+    async updateSessionToStatusLost(sessionId: string): Promise<Session> {
+        const response = await api.patch(`/sessions/${sessionId}/mark-lost`)
+        return response.data;
+    }
+
+    async updateSessionToStatusFinished(sessionId: string): Promise<Session> {
+        const response = await api.patch(`/sessions/${sessionId}/mark-playing`)
         return response.data;
     }
 

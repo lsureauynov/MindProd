@@ -72,7 +72,7 @@ const GameMenu: React.FC = () => {
     );
   }
 
-  const remainingAttempts = gameState?.remainingAttempts ?? 3;
+  const remainingAttempts = gameState?.remaining_lives ?? 3;
 
   const handleAccuseClick = () => {
     navigate(`/game/${id}/accusation`);

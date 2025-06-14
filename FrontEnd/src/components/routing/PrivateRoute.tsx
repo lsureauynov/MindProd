@@ -21,7 +21,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
       isClosable: true,
     });
     
-    // Rediriger vers la page de connexion tout en sauvegardant la page demandée
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

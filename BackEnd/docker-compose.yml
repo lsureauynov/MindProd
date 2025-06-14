@@ -16,6 +16,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
+      - OLLAMA_URL=${OLLAMA_URL}
+      - OLLAMA_MODEL_NAME=${OLLAMA_MODEL_NAME}
     networks:
       - mindprod_network
 
