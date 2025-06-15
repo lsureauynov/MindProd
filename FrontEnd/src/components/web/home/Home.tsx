@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
-import { Link as RouterLink, LinkProps as RouterLinkProps } from 'react-router-dom';
+import { Link as RouterLink} from 'react-router-dom';
+import type { LinkProps as RouterLinkProps} from 'react-router-dom';
 import {
   Box,
   Container,
@@ -27,7 +28,7 @@ type FeatureProps = {
 };
 
 const Feature = ({ icon: IconComponent, title, description }: FeatureProps) => (
-    <VStack sx={styles.feature}>
+    <VStack spacing={4} sx={styles.feature}>
       <IconComponent size={40} color="var(--chakra-colors-brand-primary-500)" />
       <Heading size="md" fontFamily="heading">
         {title}
@@ -40,10 +41,9 @@ const Feature = ({ icon: IconComponent, title, description }: FeatureProps) => (
 
 const Home: React.FC = () => {
   const buttonSize = useBreakpointValue({ base: 'md', md: 'lg' });
-
   return (
-      <Box as="main" {...styles.main}>
-        <Box {...styles.particle} animation={pulseAnimation} />
+    <Box as="main" sx={styles.main}>
+      <Box sx={styles.particle} animation={pulseAnimation} />
 
         <Container maxW="container.xl" pt={{ base: 20, md: 32 }} pb={20}>
           <VStack spacing={8} align="center" position="relative">

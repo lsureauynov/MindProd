@@ -1,5 +1,5 @@
 import { keyframes } from '@emotion/react';
-import { SystemStyleObject } from '@chakra-ui/react';
+import type { SystemStyleObject } from '@chakra-ui/react';
 
 export const pulse = keyframes`
     0% { transform: scale(1); opacity: 0.5; }
@@ -16,6 +16,7 @@ export const styles: { [key: string]: SystemStyleObject } = {
         bgGradient: 'radial-gradient(circle at 50% 50%, rgba(66, 153, 225, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%)',
         position: 'relative',
         overflow: 'hidden',
+        content: '""',
     },
     particle: {
         position: 'absolute',
@@ -68,7 +69,6 @@ export const styles: { [key: string]: SystemStyleObject } = {
         mt: 16,
     },
     feature: {
-        spacing: 4,
         p: 6,
         bg: 'rgba(26, 32, 44, 0.8)',
         borderRadius: 'xl',
