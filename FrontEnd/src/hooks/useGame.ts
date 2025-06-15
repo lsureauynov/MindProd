@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
-import { GameService } from '../services/game/gameService';
 import type { Character, Clue, Session, Accusation } from '../types';
 
 interface UseGameReturn {
@@ -27,16 +26,15 @@ export const useGame = (gameId: string): UseGameReturn => {
 
   const navigate = useNavigate();
   const toast = useToast();
-  const gameService = GameService.getInstance();
 
   const loadGameData = useCallback(async () => {
     try {
       setIsLoading(true);
       const [state, suspectsData, witnessesData, cluesData] = await Promise.all([
-        gameService.getGameState(gameId),
-        gameService.getSuspects(gameId),
-        gameService.getWitnesses(gameId),
-        gameService.getClues(gameId),
+//        gameService.getGameState(gameId),
+//        gameService.getSuspects(gameId),
+//        gameService.getWitnesses(gameId),
+//        gameService.getClues(gameId),
       ]);
 
       setGameState(state);
@@ -63,7 +61,7 @@ export const useGame = (gameId: string): UseGameReturn => {
 
   const makeAccusation = async (suspectId: string): Promise<boolean> => {
     try {
-      const result = await gameService.makeAccusation(gameId, suspectId);
+//      const result = await gameService.makeAccusation(gameId, suspectId);
       if (result.correct) {
         toast({
           title: 'Félicitations !',
@@ -96,7 +94,7 @@ export const useGame = (gameId: string): UseGameReturn => {
 
   const unlockClue = async (clueId: string): Promise<void> => {
     try {
-      await gameService.unlockClue(gameId, clueId);
+//      await gameService.unlockClue(gameId, clueId);
       await loadGameData();
     } catch (err) {
       toast({

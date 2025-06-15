@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useToast } from '@chakra-ui/react';
 import Accusation from './Accusation';
-import { GameService } from '../../../services/game/gameService';
 import type { Character } from '../gameMenu/gameMenuTypes.ts';
 
 const AccusationWrapper: React.FC = () => {
@@ -19,8 +18,6 @@ const AccusationWrapper: React.FC = () => {
       
       try {
         setLoading(true);
-        const gameService = GameService.getInstance();
-        const suspectsData = await gameService.getSuspects(id);
         setSuspects(suspectsData);
       } catch (err) {
         setError("Erreur lors du chargement des suspects");
@@ -47,8 +44,7 @@ const AccusationWrapper: React.FC = () => {
     if (!id) return;
     
     try {
-      const gameService = GameService.getInstance();
-      const result = await gameService.makeAccusation(id, suspectId);
+      const result = await accusationService.makeAccusation(id, suspectId);
       
       if (result.correct) {
         toast({

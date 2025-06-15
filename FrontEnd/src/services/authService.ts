@@ -32,16 +32,24 @@ class AuthService {
       return tokens;
     } catch (error: unknown) {
       if (this.isAxiosErrorWithResponse(error)) {
-        throw new Error(error.response?.data?.message || 'Invalid credentials');
+        const message = error.response?.data?.message ?? 'Invalid credentials';
+        return Promise.reject(new Error(message));
       }
-      throw new Error('Failed to login');
+      return Promise.reject(new Error('Failed to login'));
     }
   }
 
   async register(credentials: RegisterCredentials): Promise<UserProfile> {
     try {
-      const response = await axios.post<UserProfile>(`${APP_CONFIG.API.BASE_URL}/register/`, credentials);
-      return response.data;
+      const response = await axios.post<{ message: string; user_id: string; access: string; refresh: string }>(
+          `${APP_CONFIG.API.BASE_URL}/register/`,
+          credentials
+      );
+
+      const tokens = { access: response.data.access, refresh: response.data.refresh };
+      this.setTokens(tokens);
+
+      return { id: response.data.user_id } as UserProfile;
     } catch (error: unknown) {
       if (this.isAxiosErrorWithResponse(error)) {
         throw new Error(error.response?.data?.message || 'Registration failed');
@@ -49,6 +57,7 @@ class AuthService {
       throw new Error('Failed to register');
     }
   }
+
 
   async refreshToken(): Promise<AuthTokens | null> {
     if (this.refreshingPromise) {

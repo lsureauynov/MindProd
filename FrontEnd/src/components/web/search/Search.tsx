@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, VStack, Spinner, Center, Text } from '@chakra-ui/react';
 import SearchHeader from './components/SearchHeader';
 import SearchResults from './components/SearchResults';

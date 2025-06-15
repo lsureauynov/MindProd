@@ -25,7 +25,7 @@ export class StoryService {
 
     async getStories() {
         const response = await api.get('/stories');
-        return response.data.result;
+        return response.data.results;
     }
 
 }

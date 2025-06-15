@@ -19,7 +19,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web']
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -29,6 +28,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+ALLOWED_HOSTS = []
+
 
 # Application definition
 AUTH_USER_MODEL = 'user.User'
@@ -46,7 +48,7 @@ INSTALLED_APPS = [
     'game',
     'ia',
     'rest_framework',
-    'drf_spectacular',
+    'drf_yasg'
 ]
 
 MIDDLEWARE = [
@@ -143,18 +145,4 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
-}
-
-SPECTACULAR_SETTINGS = {
-    "COMPONENT_SPLIT_REQUEST": True,
-    "SERVE_INCLUDE_SCHEMA": False,
-    "TITLE": "Mon API",
-    "VERSION": "1.0.0",
-    "DESCRIPTION": "API MindProd",
-    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
-    "SCHEMA_PATH_PREFIX": "/api/v1",
 }

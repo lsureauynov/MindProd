@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -30,7 +30,6 @@ const Login: React.FC = () => {
     password: ''
   });
 
-  // Récupérer la page demandée avant la redirection
   const from = location.state?.from?.pathname || '/stories';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

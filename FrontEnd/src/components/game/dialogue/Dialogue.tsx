@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -24,7 +24,6 @@ import type { Message, DialogueCharacter } from './dialogueTypes.ts';
 import type { Clue } from '../gameMenu/gameMenuTypes.ts';
 import { MessageBubble } from './components/MessageBubble';
 import { CluesList } from './components/CluesList';
-import { GameService } from '../../../services/game/gameService';
 import type {DiscoveredClue} from "../gameMenu/gameMenuTypes.ts";
 
 const Dialogue: React.FC = () => {
@@ -67,14 +66,13 @@ const Dialogue: React.FC = () => {
       
       try {
         setLoading(true);
-        const gameService = GameService.getInstance();
-        
+//gameService
         // Charger les informations du personnage
-        const characters = await gameService.getSuspects(storyId);
+        const characters = await charactersService.getSuspects(storyId);
         const character = characters.find(c => c.id === characterId);
         
         if (!character) {
-          const witnesses = await gameService.getWitnesses(storyId);
+          const witnesses = await characetrsService.getWitnesses(storyId);
           const witness = witnesses.find(w => w.id === characterId);
           if (witness) {
             setCharacter(witness);
@@ -84,7 +82,7 @@ const Dialogue: React.FC = () => {
         }
         
         // Charger les indices
-        const cluesData = await gameService.getClues(storyId);
+        const cluesData = await cluesService.getClues(storyId);
         setClues(cluesData);
         
       } catch (err) {

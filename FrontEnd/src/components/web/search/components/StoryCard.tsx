@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Box,
@@ -13,11 +12,11 @@ import type { StoryCardProps} from "./../searchTypes";
 
 const StoryCard: React.FC<StoryCardProps> = ({story}) => {
   return (
-    <Link
-      as={RouterLink}
-      to={`/story/${story.id}`}
-      _hover={{ textDecoration: 'none' }}
-    >
+      <Link
+          as={RouterLink as React.ElementType}
+          to={`/story/${story.id}`}
+          _hover={{ textDecoration: 'none' }}
+      >
       <Box
         borderWidth="1px"
         borderRadius="xl"

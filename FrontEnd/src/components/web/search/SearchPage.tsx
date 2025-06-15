@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -15,7 +15,7 @@ import {
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import StoryCard from './components/StoryCard';
-import { GameService } from '../../../services/game/gameService';
+import { StoryService } from '../../../services/game/storiesService';
 import type { Story } from './searchTypes';
 
 const SearchPage: React.FC = () => {
@@ -23,13 +23,13 @@ const SearchPage: React.FC = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const fetchStories = async () => {
       try {
         setLoading(true);
-        const gameService = GameService.getInstance();
-        const storiesData = await gameService.getStories();
+        const storyService = StoryService.getInstance();
+        const storiesData = await storyService.getStories();
         setStories(storiesData);
       } catch (err) {
         setError("Impossible de charger les histoires");
@@ -42,56 +42,56 @@ const SearchPage: React.FC = () => {
   }, []);
 
   const filteredStories = stories.filter(story =>
-    story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    story.resume.toLowerCase().includes(searchQuery.toLowerCase())
+      story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      story.resume.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   if (loading) {
     return (
-      <Center h="100vh">
-        <Spinner size="xl" color="brand.primary.500" />
-      </Center>
+        <Center h="100vh">
+          <Spinner size="xl" color="brand.primary.500" />
+        </Center>
     );
   }
 
   if (error) {
     return (
-      <Center h="100vh">
-        <Text color="red.500">{error}</Text>
-      </Center>
+        <Center h="100vh">
+          <Text color="red.500">{error}</Text>
+        </Center>
     );
   }
 
   return (
-    <Container maxW="container.xl" py={8}>
-      <VStack spacing={8} align="stretch">
-        <Box>
-          <Heading mb={4}>Histoires disponibles</Heading>
-          <InputGroup>
-            <InputLeftElement pointerEvents="none">
-              <Icon as={SearchIcon} color="gray.300" />
-            </InputLeftElement>
-            <Input
-              placeholder="Rechercher une histoire..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </InputGroup>
-        </Box>
+      <Container maxW="container.xl" py={8}>
+        <VStack spacing={8} align="stretch">
+          <Box>
+            <Heading mb={4}>Histoires disponibles</Heading>
+            <InputGroup>
+              <InputLeftElement pointerEvents="none">
+                <Icon as={SearchIcon as React.ElementType} color="gray.300" />
+              </InputLeftElement>
+              <Input
+                  placeholder="Rechercher une histoire..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </InputGroup>
+          </Box>
 
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-          {filteredStories.map((story) => (
-            <StoryCard key={story.id} story={story} />
-          ))}
-        </SimpleGrid>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+            {filteredStories.map((story) => (
+                <StoryCard key={story.id} story={story} />
+            ))}
+          </SimpleGrid>
 
-        {filteredStories.length === 0 && (
-          <Text textAlign="center" color="gray.500">
-            Aucune histoire ne correspond à votre recherche.
-          </Text>
-        )}
-      </VStack>
-    </Container>
+          {filteredStories.length === 0 && (
+              <Text textAlign="center" color="gray.500">
+                Aucune histoire ne correspond à votre recherche.
+              </Text>
+          )}
+        </VStack>
+      </Container>
   );
 };
 

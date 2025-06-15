@@ -1,5 +1,3 @@
-// Contact.tsx
-import React from 'react';
 import { Box, Container, VStack } from '@chakra-ui/react';
 import { ContactForm } from './components/ContactForm';
 import { ContactHeader } from './components/ContactHeader';

@@ -73,6 +73,8 @@ Ce système fonctionne uniquement sur Windows. Assurez-vous d'avoir Docker Deskt
 Si vous êtes sur Linux ou Mac, vous pouvez créer un fichier makefile pour automatiser les commandes.
 ```bash
 # Pour tout le projet
+docker network create mindprod_network
+
 .\build.bat
 .\up.bat
 
