@@ -15,6 +15,7 @@ import {
 import { StoryService } from '../../../services/game/storiesService';
 import { SessionService } from '../../../services/game/sessionService';
 import { PlayerService } from '../../../services/game/playerService';
+import { storyStyles, storyProps } from './storyStyles';
 import type { StoryData, PlayerData } from './storyTypes';
 
 const Story: React.FC = () => {
@@ -90,58 +91,47 @@ const Story: React.FC = () => {
 
   if (loading) {
     return (
-        <Center h="100vh">
-          <Spinner size="xl" color="brand.primary.500" />
+        <Center sx={storyStyles.loadingCenter}>
+          <Spinner size={storyProps.spinner.size} sx={storyStyles.spinner} />
         </Center>
     );
   }
 
   if (error || !story) {
     return (
-        <Center h="100vh">
-          <Text color="red.500">{error || 'Histoire non trouvée'}</Text>
+        <Center sx={storyStyles.errorCenter}>
+          <Text sx={storyStyles.errorText}>{error || 'Histoire non trouvée'}</Text>
         </Center>
     );
   }
 
   return (
-      <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
-          <Box position="relative" h="400px">
+      <Container sx={storyStyles.container}>
+        <VStack spacing={storyProps.container.spacing} align={storyProps.container.align}>
+          <Box sx={storyStyles.imageContainer}>
             <Image
                 src={story.image_url}
                 alt={story.title}
-                objectFit="cover"
-                w="100%"
-                h="100%"
-                borderRadius="xl"
+                sx={storyStyles.image}
             />
-            <Box
-                position="absolute"
-                bottom={0}
-                left={0}
-                right={0}
-                bg="rgba(0, 0, 0, 0.7)"
-                p={6}
-                borderBottomRadius="xl"
-            >
-              <Heading color="white" size="xl">
+            <Box sx={storyStyles.imageOverlay}>
+              <Heading size={storyProps.title.size} sx={storyStyles.title}>
                 {story.title}
               </Heading>
             </Box>
           </Box>
 
-          <Box bg="gray.800" p={6} borderRadius="xl">
-            <Text color="whiteAlpha.900" fontSize="lg" whiteSpace="pre-line">
+          <Box sx={storyStyles.contentBox}>
+            <Text sx={storyStyles.contentText}>
               {story.resume}
             </Text>
           </Box>
 
           <Button
               size="lg"
-              colorScheme="brand.primary"
+              colorScheme="blue"
               onClick={handlePlay}
-              width="100%"
+              sx={storyStyles.playButton}
               isDisabled={!player}
           >
             Commencer l'enquête

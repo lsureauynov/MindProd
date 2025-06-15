@@ -9,13 +9,13 @@ import {
   Heading,
   Text,
   VStack,
-  Icon,
   Spinner,
   Center
 } from '@chakra-ui/react';
 import { SearchIcon } from '@chakra-ui/icons';
 import StoryCard from './components/StoryCard';
 import { StoryService } from '../../../services/game/storiesService';
+import { searchPageStyles, searchPageProps } from './searchPageStyles';
 import type { Story } from './searchTypes';
 
 const SearchPage: React.FC = () => {
@@ -48,28 +48,28 @@ const SearchPage: React.FC = () => {
 
   if (loading) {
     return (
-        <Center h="100vh">
-          <Spinner size="xl" color="brand.primary.500" />
+        <Center sx={searchPageStyles.loadingCenter}>
+          <Spinner size={searchPageProps.spinner.size} sx={searchPageStyles.spinner} />
         </Center>
     );
   }
 
   if (error) {
     return (
-        <Center h="100vh">
-          <Text color="red.500">{error}</Text>
+        <Center sx={searchPageStyles.errorCenter}>
+          <Text sx={searchPageStyles.errorText}>{error}</Text>
         </Center>
     );
   }
 
   return (
-      <Container maxW="container.xl" py={8}>
-        <VStack spacing={8} align="stretch">
+      <Container sx={searchPageStyles.container}>
+        <VStack spacing={searchPageProps.container.spacing} align={searchPageProps.container.align}>
           <Box>
-            <Heading mb={4}>Histoires disponibles</Heading>
+            <Heading sx={searchPageStyles.header}>Histoires disponibles</Heading>
             <InputGroup>
               <InputLeftElement pointerEvents="none">
-                <Icon as={SearchIcon as React.ElementType} color="gray.300" />
+                <SearchIcon sx={searchPageStyles.searchIcon} />
               </InputLeftElement>
               <Input
                   placeholder="Rechercher une histoire..."
@@ -79,14 +79,14 @@ const SearchPage: React.FC = () => {
             </InputGroup>
           </Box>
 
-          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+          <SimpleGrid columns={searchPageProps.grid.columns} spacing={searchPageProps.grid.spacing}>
             {filteredStories.map((story) => (
                 <StoryCard key={story.id} story={story} />
             ))}
           </SimpleGrid>
 
           {filteredStories.length === 0 && (
-              <Text textAlign="center" color="gray.500">
+              <Text sx={searchPageStyles.noResultsText}>
                 Aucune histoire ne correspond à votre recherche.
               </Text>
           )}
