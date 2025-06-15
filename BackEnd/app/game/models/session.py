@@ -10,7 +10,7 @@ class SessionStatus(models.TextChoices):
 
 class Session(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, on_delete=models.CASCADE, related_name='session')
     created_at = models.DateField(auto_now_add=True)
     ended_at = models.DateField(null=True, blank=True)
     story = models.ForeignKey(Story, on_delete=models.CASCADE)

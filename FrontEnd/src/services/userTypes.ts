@@ -21,6 +21,9 @@ export type RegisterCredentials = LoginCredentials & {
     name: string;
     surname: string;
     image_url: string;
+};
+
+export type RegisterFormData = RegisterCredentials & {
     username: string;
 };
 

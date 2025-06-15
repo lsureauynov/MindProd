@@ -15,7 +15,7 @@ class PlayerStatsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_stats(self, obj):
-        sessions = obj.sessions.all()
+        sessions = obj.session.all()
         return {
             'started': sessions.filter(status='started').count(),
             'finished': sessions.filter(status='finished').count(),

@@ -127,15 +127,25 @@ const Story: React.FC = () => {
             </Text>
           </Box>
 
-          <Button
-              size="lg"
-              colorScheme="blue"
-              onClick={handlePlay}
-              sx={storyStyles.playButton}
-              isDisabled={!player}
-          >
-            Commencer l'enquête
-          </Button>
+          {player ? (
+            <Button
+                size="lg"
+                colorScheme="blue"
+                onClick={handlePlay}
+                sx={storyStyles.playButton}
+            >
+              Commencer l'enquête
+            </Button>
+          ) : (
+            <Button
+                size="lg"
+                colorScheme="orange"
+                onClick={() => navigate('/login')}
+                sx={storyStyles.playButton}
+            >
+              Se connecter pour jouer
+            </Button>
+          )}
         </VStack>
       </Container>
   );

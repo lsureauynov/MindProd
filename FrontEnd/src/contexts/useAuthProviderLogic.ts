@@ -75,17 +75,20 @@ export const useAuthProviderLogic = () => {
     const register = async (credentials: RegisterCredentials): Promise<UserProfile> => {
         setIsLoading(true);
         try {
-            await authService.register(credentials);
-            await fetchUser();
-            const profile = await userService.getCurrentUser();
+            const userProfile = await authService.register(credentials);
+            
             setIsAuthenticated(true);
+            
+            await fetchUser();
+            
             toast({
                 title: 'Inscription réussie',
                 status: 'success',
                 duration: 3000,
                 isClosable: true
             });
-            return profile;
+            
+            return userProfile;
         } catch (error) {
             console.error("Erreur d'inscription:", error);
             toast({

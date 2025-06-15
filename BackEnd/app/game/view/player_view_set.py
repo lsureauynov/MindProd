@@ -13,7 +13,7 @@ class PlayerViewSet(ModelViewSet):
     serializer_class = PlayerSerializer
     permission_classes = [IsAuthenticated, IsPlayerOwner]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user', 'session']
+    filterset_fields = ['user']
 
     def get_queryset(self):
         return Player.objects.filter(user=self.request.user)
@@ -24,7 +24,7 @@ class PlayerStatsViewSet(ModelViewSet):
     serializer_class = PlayerStatsSerializer
     permission_classes = [IsAuthenticated, IsPlayerOwner]
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['user', 'session']
+    filterset_fields = ['user']
 
     def get_queryset(self):
         return Player.objects.filter(user=self.request.user)

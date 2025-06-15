@@ -19,6 +19,7 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import { FcGoogle } from 'react-icons/fc';
 import { useAuth } from '../../../contexts/AuthContext';
 import { PlayerService } from '../../../services/game/playerService';
+import type { RegisterFormData } from '../../../services/userTypes';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const Register: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterFormData>({
     name: '',
     surname: '',
     email: '',
@@ -50,13 +51,36 @@ const Register: React.FC = () => {
     setError(null);
 
     try {
-      const user = await register(formData);
+      // 1. Préparer les données pour l'User (sans username)
+      const userCredentials = {
+        name: formData.name,
+        surname: formData.surname,
+        email: formData.email,
+        password: formData.password,
+        image_url: formData.image_url,
+      };
+
+      // 2. Créer l'utilisateur et s'authentifier
+      const user = await register(userCredentials);
+      
+      // 3. Créer le joueur maintenant que l'utilisateur est authentifié
       if (user?.id) {
-        const playerService = PlayerService.getInstance();
-        await playerService.createPlayer(user.id, formData.username, formData.image_url);
+        try {
+          const playerService = PlayerService.getInstance();
+          await playerService.createPlayer(
+            user.id, 
+            formData.username || `${formData.name} ${formData.surname}`, 
+            formData.image_url
+          );
+        } catch (playerError) {
+          console.warn('Erreur lors de la création du joueur:', playerError);
+          // On continue même si la création du joueur échoue
+        }
       }
+      
       navigate('/stories');
     } catch (err) {
+      console.error('Erreur d\'inscription:', err);
       setError('Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
     } finally {
       setIsLoading(false);
