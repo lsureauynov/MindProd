@@ -14,6 +14,7 @@ import AccountStats from './components/AccountStats';
 import AccountForm from './components/AccountForm';
 import DeleteAccountDialog from './components/DeleteAccountDialog';
 import UserService from '../../../services/userService';
+import { accountStyles, accountProps } from './accountStyles';
 import type { UserProfile, UserStats } from '../../../services/userTypes.ts';
 import type { UserData } from './accountTypes.ts';
 
@@ -40,14 +41,14 @@ const AccountPage = () => {
             UserService.getCurrentUser(),
             UserService.getUserStats(),
         ])
-            .then(([user, stats]) => {
+            .then(([user, userStats]) => {
                 setUserProfile(user);
                 setUserData((prev) => ({
                     ...prev,
                     name: user.name,
                     email: user.email,
                 }));
-                setStats(stats);
+                setStats(userStats);
             })
             .catch(() => {
                 toast({
@@ -58,7 +59,7 @@ const AccountPage = () => {
                 });
             })
             .finally(() => setIsLoading(false));
-    }, []);
+    }, [toast]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -68,14 +69,12 @@ const AccountPage = () => {
     const handleSave = async () => {
         setIsLoading(true);
         try {
-            // Mise à jour du profil
             await UserService.updateProfile({
                 name: userData.name,
                 email: userData.email,
                 image_url: userProfile?.image_url ?? '',
             });
 
-            // Mise à jour du mot de passe (si rempli)
             if (userData.currentPassword && userData.newPassword) {
                 await UserService.updatePassword(
                     userData.currentPassword,
@@ -130,19 +129,10 @@ const AccountPage = () => {
     if (!userProfile) return null;
 
     return (
-        <Box
-            as="main"
-            minH="100vh"
-            pt="80px"
-            bgGradient="linear(to-b, gray.900, gray.800)"
-        >
-            <Container maxW="container.lg" py={8}>
-                <VStack spacing={8}>
-                    <Heading
-                        bgGradient="linear(to-r, brand.primary.400, brand.secondary.400)"
-                        bgClip="text"
-                        fontSize="4xl"
-                    >
+        <Box as="main" sx={accountStyles.main}>
+            <Container sx={accountStyles.container}>
+                <VStack spacing={accountProps.container.spacing}>
+                    <Heading sx={accountStyles.title}>
                         Mon Compte
                     </Heading>
 
@@ -177,7 +167,10 @@ const AccountPage = () => {
                         cancelRef={React.createRef()}
                     />
 
-                    <Button colorScheme="red" onClick={() => setIsDeleteDialogOpen(true)}>
+                    <Button 
+                        colorScheme="red"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                    >
                         Supprimer mon compte
                     </Button>
                 </VStack>

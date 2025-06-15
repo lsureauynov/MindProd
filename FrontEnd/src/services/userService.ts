@@ -47,7 +47,7 @@ export class UserService {
 
   async getUserStats(): Promise<UserStats> {
     try {
-      const response = await axios.get(`${API_URL}/me/stats`);
+      const response = await axios.get(`${API_URL}/player-stats`);
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch user stats');

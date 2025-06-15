@@ -8,6 +8,7 @@ import {
     Button,
 } from '@chakra-ui/react';
 import { useRef } from 'react';
+import { deleteAccountDialogStyles } from './deleteAccountDialogStyles';
 import type { DeleteAccountDialogProps } from '../accountTypes.ts';
 
 const DeleteAccountDialog = ({ isOpen, onClose, onConfirm }: DeleteAccountDialogProps) => {
@@ -21,8 +22,8 @@ const DeleteAccountDialog = ({ isOpen, onClose, onConfirm }: DeleteAccountDialog
             isCentered
         >
             <AlertDialogOverlay>
-                <AlertDialogContent bg="gray.800" border="1px solid" borderColor="gray.700">
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                <AlertDialogContent sx={deleteAccountDialogStyles.content}>
+                    <AlertDialogHeader sx={deleteAccountDialogStyles.header}>
                         Supprimer le compte
                     </AlertDialogHeader>
 
@@ -34,7 +35,11 @@ const DeleteAccountDialog = ({ isOpen, onClose, onConfirm }: DeleteAccountDialog
                         <Button ref={cancelRef} onClick={onClose}>
                             Annuler
                         </Button>
-                        <Button colorScheme="red" onClick={onConfirm} ml={3}>
+                        <Button 
+                            colorScheme="red" 
+                            onClick={onConfirm} 
+                            sx={deleteAccountDialogStyles.confirmButton}
+                        >
                             Supprimer
                         </Button>
                     </AlertDialogFooter>

@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react';
 import { useRef } from 'react';
 import type { RefObject } from 'react';
+import { accountFormStyles, accountFormProps } from './accountFormStyles';
 import type { AccountFormProps } from '../accountTypes.ts';
 
 const AccountForm = ({
@@ -25,15 +26,8 @@ const AccountForm = ({
     return (
         <VStack
             as="form"
-            spacing={6}
-            width="full"
-            align="stretch"
-            border="1px solid"
-            borderColor="gray.700"
-            borderRadius="lg"
-            p={6}
-            boxShadow="md"
-            bg="gray.800"
+            spacing={accountFormProps.form.spacing}
+            sx={accountFormStyles.form}
         >
             <FormControl isDisabled={!isEditing}>
                 <FormLabel>Nom</FormLabel>
@@ -76,9 +70,9 @@ const AccountForm = ({
                 />
             </FormControl>
 
-            <Divider borderColor="gray.600" />
+            <Divider sx={accountFormStyles.divider} />
 
-            <HStack spacing={4} justify="flex-end">
+            <HStack spacing={accountFormProps.buttonContainer.spacing} sx={accountFormStyles.buttonContainer}>
                 {isEditing ? (
                     <>
                         <Button variant="outline" onClick={onCancel}>

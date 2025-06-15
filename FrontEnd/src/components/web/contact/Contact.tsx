@@ -2,14 +2,15 @@ import { Box, Container, VStack } from '@chakra-ui/react';
 import { ContactForm } from './components/ContactForm';
 import { ContactHeader } from './components/ContactHeader';
 import { useContactForm } from './hooks/useContactForm';
+import { contactStyles, contactProps } from './contactStyles';
 
 const ContactPage: React.FC = () => {
   const { formData, errors, isLoading, handleSubmit, handleChange } = useContactForm();
 
   return (
-      <Box as="main" minH="100vh" pt="80px" bg="gray.900" bgGradient="linear(to-b, gray.900, gray.800)">
-        <Container maxW="container.md" py={8}>
-          <VStack spacing={8} align="stretch">
+      <Box as="main" sx={contactStyles.main}>
+        <Container sx={contactStyles.container}>
+          <VStack spacing={contactProps.container.spacing} align={contactProps.container.align}>
             <ContactHeader />
             <ContactForm
                 formData={formData}

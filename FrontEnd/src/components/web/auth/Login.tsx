@@ -180,17 +180,18 @@ const Login: React.FC = () => {
 
               <Text color="whiteAlpha.600" fontSize="sm">
                 Pas encore de compte ?{' '}
-                <Button
+                <Text
                   as={RouterLink}
                   to="/register"
-                  variant="link"
                   color="brand.primary.400"
                   _hover={{
                     color: "brand.primary.300",
                   }}
+                  cursor="pointer"
+                  textDecoration="underline"
                 >
                   S'inscrire
-                </Button>
+                </Text>
               </Text>
             </VStack>
           </VStack>

@@ -1,25 +1,21 @@
 import { Avatar, Box, Button } from '@chakra-ui/react';
 import { EditIcon } from '@chakra-ui/icons';
+import { accountHeaderStyles, accountHeaderProps } from './accountHeaderStyles';
 import type { AccountHeaderProps } from '../accountTypes.ts';
 
-
 const AccountHeader = ({ userProfil, isEditing, onEditAvatar }: AccountHeaderProps) => (
-    <Box position="relative">
+    <Box sx={accountHeaderStyles.container}>
         <Avatar
-            size="2xl"
+            size={accountHeaderProps.avatar.size}
             name={userProfil.name}
             src={userProfil.image_url}
-            border="4px solid"
-            borderColor="brand.primary.500"
+            sx={accountHeaderStyles.avatar}
         />
         {isEditing && (
             <Button
-                size="sm"
-                position="absolute"
-                bottom="0"
-                right="0"
-                colorScheme="blue"
-                rounded="full"
+                size={accountHeaderProps.editButton.size}
+                colorScheme={accountHeaderProps.editButton.colorScheme}
+                sx={accountHeaderStyles.editButton}
                 leftIcon={<EditIcon />}
                 onClick={onEditAvatar}
             >
