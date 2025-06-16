@@ -35,14 +35,14 @@ export class CharacterService {
     return true;
   }
 
-  async getSuspectsByStory(storyId:string): Promise<string> {
+  async getSuspectsByStory(storyId: string): Promise<Character[]> {
     const response = await api.get(`/characters/`, {
         params: { 'role_id': 'suspect', story: storyId }
     });
     return response.data.results;
   }
 
-  async getWitnessesByStory(storyId:string): Promise<string> {
+  async getWitnessesByStory(storyId: string): Promise<Character[]> {
     const response = await api.get(`/characters/`, {
         params: { 'role_id': 'witness', story: storyId }
     });

@@ -17,6 +17,7 @@ import { SessionService } from '../../../services/game/sessionService';
 import { PlayerService } from '../../../services/game/playerService';
 import { storyStyles, storyProps } from './storyStyles';
 import type { StoryData, PlayerData } from './storyTypes';
+import type { Session } from '../../../types';
 
 const Story: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,11 +26,13 @@ const Story: React.FC = () => {
 
   const [story, setStory] = useState<StoryData | null>(null);
   const [player, setPlayer] = useState<PlayerData | null>(null);
+  const [existingSession, setExistingSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [checkingSession, setCheckingSession] = useState(false);
 
   const showToast = useCallback(
-      (title: string, description: string, status: 'error' | 'warning') => {
+      (title: string, description: string, status: 'error' | 'warning' | 'success') => {
         toast({
           title,
           description,
@@ -59,34 +62,90 @@ const Story: React.FC = () => {
     try {
       const currentPlayer = await PlayerService.getInstance().getCurrentPlayer();
       setPlayer(currentPlayer);
+      return currentPlayer;
     } catch (err) {
       console.warn('Aucun joueur connecté ou erreur de récupération.');
+      return null;
+    }
+  }, []);
+
+  const checkExistingSession = useCallback(async (storyId: string, playerId: string) => {
+    try {
+      setCheckingSession(true);
+      const session = await SessionService.getInstance().findSessionByStoryAndPlayer(storyId, playerId);
+      
+      // Ne considérer que les sessions non terminées
+      if (session && session.status !== 'finished') {
+        setExistingSession(session);
+        console.log('Session existante trouvée:', session.id, 'Status:', session.status);
+      } else {
+        setExistingSession(null);
+        console.log('Aucune session active trouvée');
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification de session:', error);
+      setExistingSession(null);
+    } finally {
+      setCheckingSession(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchStory();
-    fetchPlayer();
-  }, [fetchStory, fetchPlayer]);
+    const initializeData = async () => {
+      await fetchStory();
+      const currentPlayer = await fetchPlayer();
+      
+      // Vérifier s'il existe une session pour cette histoire et ce joueur
+      if (id && currentPlayer) {
+        await checkExistingSession(id, currentPlayer.id);
+      }
+    };
+
+    initializeData();
+  }, [id, fetchStory, fetchPlayer, checkExistingSession]);
 
   const handlePlay = async () => {
-    if (!id || !story) return;
-
-    if (!player) {
-      showToast(
-          'Connexion requise',
-          'Vous devez être connecté pour jouer à cette histoire.',
-          'warning'
-      );
-      return;
-    }
+    if (!id || !story || !player) return;
 
     try {
-      await SessionService.getInstance().createSession(story.id, player.id);
-      navigate(`/game/${id}`);
-    } catch {
+      if (existingSession) {
+        // Si une session existe, naviguer directement vers le jeu
+        console.log('Navigation vers session existante:', existingSession.id);
+        navigate(`/game/${id}`);
+        showToast(
+          'Session reprise',
+          'Vous continuez votre enquête en cours.',
+          'success'
+        );
+      } else {
+        // Créer une nouvelle session
+        console.log('Création d\'une nouvelle session');
+        await SessionService.getInstance().createSession(story.id, player.id);
+        navigate(`/game/${id}`);
+        showToast(
+          'Nouvelle enquête',
+          'Une nouvelle enquête a commencé !',
+          'success'
+        );
+      }
+    } catch (error) {
+      console.error('Erreur lors du démarrage/reprise:', error);
       showToast('Erreur', 'Impossible de démarrer la partie', 'error');
     }
+  };
+
+  const getButtonText = () => {
+    if (checkingSession) return 'Vérification...';
+    if (existingSession) {
+      if (existingSession.status === 'started') return 'Continuer l\'enquête';
+      if (existingSession.status === 'playing') return 'Reprendre l\'enquête';
+    }
+    return 'Commencer l\'enquête';
+  };
+
+  const getButtonColor = () => {
+    if (existingSession) return 'green';
+    return 'blue';
   };
 
   if (loading) {
@@ -127,14 +186,24 @@ const Story: React.FC = () => {
             </Text>
           </Box>
 
+          {existingSession && (
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Text fontSize="sm" color="green.400" fontWeight="medium">
+                Enquête en cours • {existingSession.remaining_lives} vie(s) restante(s)
+              </Text>
+            </Box>
+          )}
+
           {player ? (
             <Button
                 size="lg"
-                colorScheme="blue"
+                colorScheme={getButtonColor()}
                 onClick={handlePlay}
                 sx={storyStyles.playButton}
+                isLoading={checkingSession}
+                loadingText="Vérification..."
             >
-              Commencer l'enquête
+              {getButtonText()}
             </Button>
           ) : (
             <Button

@@ -1,8 +1,5 @@
-import axios from 'axios';
-import { APP_CONFIG } from '../config/constants';
+import api from './api';
 import type { UserProfile, UserStats } from './userTypes.ts';
-
-const API_URL = `${APP_CONFIG.API.BASE_URL}`;
 
 export class UserService {
   private static instance: UserService;
@@ -18,7 +15,7 @@ export class UserService {
 
   async getCurrentUser(): Promise<UserProfile> {
     try {
-      const response = await axios.get(`${API_URL}/me`);
+      const response = await api.get('/me');
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch user profile');
@@ -27,7 +24,7 @@ export class UserService {
 
   async updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
     try {
-      const response = await axios.patch(`${API_URL}/me/`, data);
+      const response = await api.patch('/me/', data);
       return response.data;
     } catch (error) {
       throw new Error('Failed to update user profile');
@@ -36,7 +33,7 @@ export class UserService {
 
   async updatePassword(currentPassword: string, newPassword: string): Promise<void> {
     try {
-      await axios.post(`${API_URL}/me/password`, {
+      await api.post('/me/password', {
         currentPassword,
         newPassword
       });
@@ -47,7 +44,7 @@ export class UserService {
 
   async getUserStats(): Promise<UserStats> {
     try {
-      const response = await axios.get(`${API_URL}/player-stats`);
+      const response = await api.get('/player-stats');
       return response.data;
     } catch (error) {
       throw new Error('Failed to fetch user stats');
@@ -56,7 +53,7 @@ export class UserService {
 
   async deleteAccount(): Promise<void> {
     try {
-      await axios.delete(`${API_URL}/me`);
+      await api.delete('/me');
     } catch (error) {
       throw new Error('Failed to delete account');
     }

@@ -14,11 +14,19 @@ export class AccusationService {
   }
 
   async createAccusation(session: string, suspectId: string): Promise<Accusation> {
+    // Vérification simple de la présence du token
+    const accessToken = localStorage.getItem('access');
+    const refreshToken = localStorage.getItem('refresh');
+    
+    if (!accessToken && !refreshToken) {
+      throw new Error('No authentication tokens found');
+    }
+
     const response = await api.post(`/accusations/`, {
       session: session,
       character: suspectId,
-
     });
+    
     return response.data;
   }
 
@@ -35,6 +43,4 @@ export class AccusationService {
     });
     return response.data.is_correct;
   }
-
-
 }

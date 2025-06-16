@@ -26,7 +26,8 @@ class SessionViewSet(ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        return Response(status=status.HTTP_201_CREATED)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @extend_schema(
         summary="Termine une session (status = finished)",
@@ -69,3 +70,17 @@ class SessionViewSet(ModelViewSet):
         except Exception as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"detail": "Session en cours."}, status=status.HTTP_200_OK)
+
+    @extend_schema(
+        summary="Fait perdre une vie à la session",
+        responses={200: OpenApiResponse(description="Vie perdue, session mise à jour")}
+    )
+    @action(detail=True, methods=["patch"], url_path="lost-life")
+    def lost_life(self, request, pk=None):
+        session = self.get_object()
+        serializer = self.get_serializer()
+        try:
+            updated_session = serializer.lose_life(session)
+            return Response(self.get_serializer(updated_session).data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)

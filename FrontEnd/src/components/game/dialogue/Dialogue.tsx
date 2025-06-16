@@ -20,11 +20,16 @@ import {
   Center
 } from '@chakra-ui/react';
 import { ArrowBackIcon, ArrowForwardIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import type { Message, DialogueCharacter } from './dialogueTypes.ts';
-import type { Clue } from '../gameMenu/gameMenuTypes.ts';
+import { CharacterService } from '../../../services/game/characterService';
+import { CluesService } from '../../../services/game/cluesService';
+import { SessionService } from '../../../services/game/sessionService';
+import { PlayerService } from '../../../services/game/playerService';
+import type { Message, DialogueCharacter } from './dialogueTypes';
+import type { Clue } from '../gameMenu/gameMenuTypes';
 import { MessageBubble } from './components/MessageBubble';
 import { CluesList } from './components/CluesList';
-import type {DiscoveredClue} from "../gameMenu/gameMenuTypes.ts";
+import type {DiscoveredClue} from "../gameMenu/gameMenuTypes";
+import { dialogueStyles, dialogueProps } from './dialogueStyles';
 
 const Dialogue: React.FC = () => {
   const { id: storyId, characterId } = useParams<{ id: string; characterId: string }>();
@@ -32,7 +37,6 @@ const Dialogue: React.FC = () => {
   const toast = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [_isCluesExpanded, setIsCluesExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isOpen: isCharacterInfoExpanded, onToggle: onToggleCharacterInfo } = useDisclosure();
   
@@ -45,12 +49,11 @@ const Dialogue: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [discoveredClues] = useState<DiscoveredClue[]>([]);
 
-
   useEffect(() => {
     if (!storyId || !characterId) {
       toast({
         title: "Erreur",
-        description: "Paramètres manquants pour le dialogue",
+        description: dialogueProps.errorMessages.missingParams,
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -66,34 +69,61 @@ const Dialogue: React.FC = () => {
       
       try {
         setLoading(true);
-//gameService
-        // Charger les informations du personnage
-        const characters = await charactersService.getSuspects(storyId);
-        const character = characters.find(c => c.id === characterId);
         
-        if (!character) {
-          const witnesses = await characetrsService.getWitnesses(storyId);
-          const witness = witnesses.find(w => w.id === characterId);
-          if (witness) {
-            setCharacter(witness);
-          }
-        } else {
+        // Récupérer le joueur actuel
+        const currentPlayer = await PlayerService.getInstance().getCurrentPlayer();
+        
+        // Chercher la session existante pour cette histoire et ce joueur
+        let session = await SessionService.getInstance().findSessionByStoryAndPlayer(storyId, currentPlayer.id);
+        
+        if (!session) {
+          // Si aucune session n'existe, rediriger vers le menu du jeu
+          toast({
+            title: "Erreur",
+            description: "Aucune session de jeu trouvée. Retour au menu.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+          navigate(`/game/${storyId}`);
+          return;
+        }
+        
+        // Charger les informations du personnage
+        const [suspects, witnesses] = await Promise.all([
+          CharacterService.getInstance().getSuspectsByStory(storyId),
+          CharacterService.getInstance().getWitnessesByStory(storyId),
+        ]);
+        
+        const character = suspects.find(c => c.id === characterId) || witnesses.find(w => w.id === characterId);
+        
+        if (character) {
           setCharacter(character);
+        } else {
+          setError("Personnage non trouvé");
+          return;
         }
         
         // Charger les indices
-        const cluesData = await cluesService.getClues(storyId);
+        const cluesData = await CluesService.getInstance().getCluesByStories(storyId);
         setClues(cluesData);
         
       } catch (err) {
         setError("Erreur lors du chargement des données");
+        toast({
+          title: "Erreur",
+          description: dialogueProps.errorMessages.loadError,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [storyId, characterId]);
+  }, [storyId, characterId, toast, navigate]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -140,182 +170,112 @@ const Dialogue: React.FC = () => {
 
   if (loading) {
     return (
-      <Center h="100vh">
-        <Spinner size="xl" color="brand.primary.500" />
+      <Center sx={dialogueStyles.loadingContainer}>
+        <Spinner sx={dialogueStyles.loadingSpinner} />
       </Center>
     );
   }
 
   if (error || !character) {
     return (
-      <Center h="100vh">
-        <Text color="red.500">{error || "Personnage non trouvé"}</Text>
+      <Center sx={dialogueStyles.errorContainer}>
+        <Text sx={dialogueStyles.errorText}>
+          {error || dialogueProps.errorMessages.characterNotFound}
+        </Text>
       </Center>
     );
   }
 
   return (
-    <Box 
-      as="main" 
-      minH="100vh"
-      bg="gray.900"
-      bgGradient="linear(to-b, gray.900, gray.800)"
-      py={8}
-    >
-      <Container 
-        maxW={containerWidth} 
-        h="100%"
-        display="flex"
-        flexDirection="column"
-      >
-        <Flex direction="column" h="calc(100vh - 4rem)">
-          <Box mb={6}>
+    <Box sx={dialogueStyles.mainContainer}>
+      <Container sx={dialogueStyles.container(containerWidth)}>
+        <Flex sx={dialogueStyles.mainFlex}>
+          <Box sx={dialogueStyles.backButtonContainer}>
             <Button
               leftIcon={<ArrowBackIcon />}
               onClick={handleBackToMenu}
-              bgGradient="linear(to-r, brand.primary.500, brand.secondary.500)"
-              color="white"
-              size={{ base: "md", md: "lg" }}
-              px={{ base: 4, md: 6 }}
-              _hover={{
-                transform: 'translateX(-4px)',
-                bgGradient: "linear(to-r, brand.primary.400, brand.secondary.400)",
-              }}
-              _active={{
-                bgGradient: "linear(to-r, brand.primary.600, brand.secondary.600)",
-              }}
+              sx={dialogueStyles.backButton}
             >
-              Retour au menu du jeu
+              {dialogueProps.backButtonText}
             </Button>
           </Box>
 
-          <Box
-            bg="gray.800"
-            borderRadius="xl"
-            overflow="hidden"
-            boxShadow="xl"
-          >
-            <Box position="relative">
+          <Box sx={dialogueStyles.characterCard}>
+            <Box sx={dialogueStyles.characterImageContainer}>
               <Image
                 src={character.image_url}
                 alt={character.name}
-                w="full"
-                h="300px"
-                objectFit="cover"
+                sx={dialogueStyles.characterImage}
               />
-              <Box
-                position="absolute"
-                bottom={0}
-                left={0}
-                right={0}
-                bg="rgba(0, 0, 0, 0.7)"
-                p={4}
-              >
-                <Text
-                  fontSize="2xl"
-                  fontWeight="bold"
-                  color="white"
-                >
-                  {character.name}
-                </Text>
+              <Box sx={dialogueStyles.characterOverlay}>
+                <HStack sx={dialogueStyles.characterHeader}>
+                  <Text sx={dialogueStyles.characterName}>
+                    {character.name}
+                  </Text>
+                  <IconButton
+                    aria-label={dialogueProps.toggleButtonLabel}
+                    icon={isCharacterInfoExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                    onClick={onToggleCharacterInfo}
+                    sx={dialogueStyles.toggleButton}
+                  />
+                </HStack>
               </Box>
             </Box>
 
-            <Box p={6}>
-              <Button
-                onClick={onToggleCharacterInfo}
-                variant="ghost"
-                width="full"
-                rightIcon={isCharacterInfoExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                mb={4}
-              >
-                Informations sur le personnage
-              </Button>
-
-              <Collapse in={isCharacterInfoExpanded} animateOpacity>
-                <VStack spacing={3} mt={4} align="stretch">
+            <Collapse in={isCharacterInfoExpanded} animateOpacity>
+              <Box sx={dialogueStyles.characterInfo}>
+                <VStack sx={dialogueStyles.characterInfoStack}>
                   <Box>
-                    <Text
-                      fontSize="sm"
-                      color="brand.primary.300"
-                      fontWeight="semibold"
-                      mb={1}
-                    >
-                      Personnalité
+                    <Text sx={dialogueStyles.personalityLabel}>
+                      {dialogueProps.personalityLabel}
                     </Text>
-                    <Text
-                      fontSize="sm"
-                      color="whiteAlpha.800"
-                    >
+                    <Text sx={dialogueStyles.personalityText}>
                       {character.personality}
                     </Text>
                   </Box>
                   <Box>
-                    <Text
-                      fontSize="sm"
-                      color="brand.secondary.300"
-                      fontWeight="semibold"
-                      mb={1}
-                    >
-                      Dans cette affaire
+                    <Text sx={dialogueStyles.backstoryLabel}>
+                      {dialogueProps.backstoryLabel}
                     </Text>
-                    <Text
-                      fontSize="sm"
-                      color="whiteAlpha.800"
-                    >
+                    <Text sx={dialogueStyles.backstoryText}>
                       {character.backstory}
                     </Text>
                   </Box>
                 </VStack>
-              </Collapse>
-            </Box>
+              </Box>
+            </Collapse>
           </Box>
 
-          <Box
-            flex="1"
-            bg="gray.800"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderColor="whiteAlpha.200"
-            boxShadow="2xl"
-            overflow="hidden"
-            display="flex"
-            flexDirection="column"
-            position="relative"
-            _before={{
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              bg: 'rgba(0, 0, 0, 0.2)',
-              backdropFilter: 'blur(8px)',
-              zIndex: 0,
-            }}
-          >
+          <Box sx={dialogueStyles.chatContainer}>
             <Box
               flex="1"
               overflowY="auto"
-              px={{ base: 3, md: 6 }}
-              py={{ base: 4, md: 6 }}
-              position="relative"
-              zIndex={1}
+              p={4}
               css={{
                 '&::-webkit-scrollbar': {
-                  width: '4px',
+                  width: '8px',
                 },
                 '&::-webkit-scrollbar-track': {
-                  width: '6px',
-                  background: 'rgba(0, 0, 0, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px',
                 },
                 '&::-webkit-scrollbar-thumb': {
-                  background: 'brand.primary.500',
-                  borderRadius: '24px',
+                  background: 'rgba(255, 255, 255, 0.3)',
+                  borderRadius: '4px',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: 'rgba(255, 255, 255, 0.5)',
                 },
               }}
             >
-              <VStack spacing={4} align="stretch">
+              <VStack sx={dialogueStyles.messagesStack}>
+                {messages.length === 0 && (
+                  <Box sx={dialogueStyles.emptyState}>
+                    <Text sx={dialogueStyles.emptyStateText}>
+                      {dialogueProps.emptyStateText(character.name)}
+                    </Text>
+                  </Box>
+                )}
                 {messages.map((message) => (
                   <MessageBubble
                     key={message.id}
@@ -327,65 +287,42 @@ const Dialogue: React.FC = () => {
               </VStack>
             </Box>
 
-            <Box
-              borderTopWidth={1}
-              borderColor="whiteAlpha.200"
-              bg="gray.800"
-              p={{ base: 3, md: 4 }}
-              boxShadow="0 -2px 10px rgba(0,0,0,0.2)"
-              position="relative"
-              zIndex={1}
-            >
-              <HStack spacing={3}>
+            <Box sx={dialogueStyles.inputContainer}>
+              <HStack sx={dialogueStyles.inputStack}>
                 <Input
                   value={inputValue}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Tapez votre message..."
-                  size="lg"
-                  bg="gray.700"
-                  color="white"
-                  borderColor="whiteAlpha.200"
+                  placeholder={dialogueProps.inputPlaceholder}
+                  sx={dialogueStyles.messageInput}
                   h={inputHeight}
-                  _hover={{
-                    borderColor: "brand.primary.400"
-                  }}
-                  _focus={{
-                    borderColor: "brand.primary.400",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-brand-primary-400)"
-                  }}
-                  _placeholder={{
-                    color: "whiteAlpha.600"
-                  }}
                 />
                 <IconButton
-                  aria-label="Send message"
+                  aria-label={dialogueProps.sendButtonLabel}
                   icon={<ArrowForwardIcon />}
                   onClick={handleSendMessage}
                   isDisabled={!inputValue.trim()}
-                  size="lg"
-                  bgGradient="linear(to-r, brand.primary.500, brand.secondary.500)"
-                  color="white"
-                  h={inputHeight}
-                  w={inputHeight}
-                  _hover={{
-                    bgGradient: "linear(to-r, brand.primary.400, brand.secondary.400)",
-                  }}
-                  _active={{
-                    bgGradient: "linear(to-r, brand.primary.600, brand.secondary.600)",
-                  }}
+                  sx={dialogueStyles.sendButton}
                 />
               </HStack>
             </Box>
           </Box>
 
-          <Box mt={6}>
-            <CluesList 
+          {clues.length > 0 && (
+            <CluesList
               clues={clues}
               discoveredClues={discoveredClues}
-              onExpandChange={setIsCluesExpanded}
+              onClueClick={(clue) => {
+                toast({
+                  title: dialogueProps.toastMessages.clueTitle,
+                  description: clue.description,
+                  status: "info",
+                  duration: 5000,
+                  isClosable: true,
+                });
+              }}
             />
-          </Box>
+          )}
         </Flex>
       </Container>
     </Box>

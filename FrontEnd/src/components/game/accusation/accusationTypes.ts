@@ -16,4 +16,5 @@ export interface SuspectCardProps {
   suspect: Character;
   isSelected: boolean;
   onSelect: (suspect: Character) => void;
+  isDisabled?: boolean;
 } 

@@ -5,7 +5,8 @@ import {
   useBreakpointValue,
   Flex,
 } from '@chakra-ui/react';
-import type { Message } from '../dialogueTypes.ts';
+import type { Message } from '../dialogueTypes';
+import { messageBubbleStyles, messageBubbleProps } from './messageBubbleStyles';
 
 interface MessageBubbleProps {
   message: Message;
@@ -21,59 +22,24 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, character
   const spacing = useBreakpointValue({ base: 2, md: 3 });
 
   return (
-    <Flex
-      w="100%"
-      justify={isUser ? 'flex-end' : 'flex-start'}
-      align="flex-start"
-      mb={4}
-    >
+    <Flex sx={messageBubbleStyles.container(isUser, maxWidth)}>
       {!isUser && (
         <Avatar
-          size={avatarSize}
+          sx={messageBubbleStyles.avatar(avatarSize, spacing)}
           src={characterImage}
-          name="Character"
-          mr={spacing}
+          name={messageBubbleProps.characterAvatarName}
         />
       )}
-      <Box
-        maxW={maxWidth}
-        bg={isUser ? 'blue.500' : 'gray.100'}
-        color={isUser ? 'white' : 'black'}
-        px={4}
-        py={3}
-        borderRadius="2xl"
-        borderBottomRightRadius={isUser ? 0 : '2xl'}
-        borderBottomLeftRadius={isUser ? '2xl' : 0}
-        boxShadow="sm"
-      >
-        <Text 
-          fontSize={fontSize}
-          lineHeight="tall"
-          whiteSpace="pre-wrap"
-          wordBreak="break-word"
-        >
+      <Box sx={messageBubbleStyles.bubble(isUser, maxWidth)}>
+        <Text sx={messageBubbleStyles.messageText(fontSize)}>
           {message.content}
         </Text>
-        <Text
-          fontSize={timeSize}
-          color={isUser ? 'whiteAlpha.800' : 'gray.500'}
-          textAlign={isUser ? 'right' : 'left'}
-          mt={1}
-          opacity={0.8}
-        >
-          {new Date(message.timestamp).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
+        <Text sx={messageBubbleStyles.timestamp(isUser, timeSize)}>
+          {new Date(message.timestamp).toLocaleTimeString([], messageBubbleProps.timeFormat)}
         </Text>
       </Box>
       {isUser && (
-        <Avatar
-          size={avatarSize}
-          name="User"
-          bg="blue.500"
-          ml={spacing}
-        />
+        <Avatar sx={messageBubbleStyles.userAvatar(avatarSize, spacing)} />
       )}
     </Flex>
   );

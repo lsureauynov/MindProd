@@ -1,20 +1,14 @@
-import axios, { isAxiosError } from 'axios';
+import { isAxiosError } from 'axios';
 import { APP_CONFIG } from '../config/constants';
+import api from './api';
 import type {AuthTokens, LoginCredentials, RegisterCredentials, UserProfile} from './userTypes.ts';
 
 class AuthService {
   private static instance: AuthService;
   private refreshingPromise: Promise<AuthTokens | null> | null = null;
 
-
   private constructor() {
-    axios.interceptors.request.use(config => {
-      const token = this.getAccessToken();
-      if (token && config.headers) {
-        config.headers['Authorization'] = `Bearer ${token}`;
-      }
-      return config;
-    });
+    // Les intercepteurs sont maintenant gérés dans services/api/index.ts
   }
 
   static getInstance(): AuthService {
@@ -26,7 +20,7 @@ class AuthService {
 
   async login(credentials: LoginCredentials): Promise<AuthTokens> {
     try {
-      const response = await axios.post<AuthTokens>(`${APP_CONFIG.API.BASE_URL}/login/`, credentials);
+      const response = await api.post<AuthTokens>('/login/', credentials);
       const tokens = response.data;
       this.setTokens(tokens);
       return tokens;
@@ -41,8 +35,8 @@ class AuthService {
 
   async register(credentials: RegisterCredentials): Promise<UserProfile> {
     try {
-      const response = await axios.post<{ message: string; user_id: string; access: string; refresh: string }>(
-          `${APP_CONFIG.API.BASE_URL}/register/`,
+      const response = await api.post<{ message: string; user_id: string; access: string; refresh: string }>(
+          '/register/',
           credentials
       );
 
@@ -58,7 +52,6 @@ class AuthService {
     }
   }
 
-
   async refreshToken(): Promise<AuthTokens | null> {
     if (this.refreshingPromise) {
       return this.refreshingPromise;
@@ -69,7 +62,7 @@ class AuthService {
       return null;
     }
 
-    this.refreshingPromise = axios.post<AuthTokens>(`${APP_CONFIG.API.BASE_URL}/token/refresh/`, { refresh })
+    this.refreshingPromise = api.post<AuthTokens>('/token/refresh/', { refresh })
         .then(response => {
           const tokens = response.data;
           this.setTokens(tokens);
