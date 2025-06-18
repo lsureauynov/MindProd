@@ -5,7 +5,7 @@ from game.serializers.characters_reveal_clue_serializer import CharactersRevealC
 from game.serializers.clue_serializer import ClueSerializer
 from game.serializers.dialogue_serializer import DialogueSerializer
 from game.serializers.discovered_clue_serializer import DiscoveredClueSerializer
-from game.serializers.player_serializer import PlayerSerializer
+from game.serializers.player_serializer import PlayerSerializer, PlayerStatsSerializer
 from game.serializers.scenario_serializer import ScenarioSerializer
 from game.serializers.session_serializer import SessionSerializer
 from game.serializers.story_serializer import StorySerializer

@@ -1,8 +1,15 @@
 from django.contrib import admin
-from game.models import (
-    Accusation, Character, CharacterAttribute, CharactersRevealClue,
-    Clue, Dialogue, DiscoveredClue, Player, Scenario, Session, Story
-)
+from game.models.accusation import Accusation
+from game.models.dialogue import Dialogue
+from game.models.character import Character, RoleCharacters
+from game.models.scenario import Scenario
+from game.models.character_attribute import CharacterAttribute
+from game.models.characters_reveal_clue import CharactersRevealClue
+from game.models.story import Story
+from game.models.player import Player
+from game.models.session import Session
+from game.models.clue import Clue
+from game.models.discovered_clue import DiscoveredClue
 
 class AccusationAdmin(admin.ModelAdmin):
     list_display = ('id', 'session','character', 'is_correct', 'created_at')

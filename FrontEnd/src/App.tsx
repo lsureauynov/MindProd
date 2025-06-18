@@ -7,11 +7,10 @@ import Register from './components/web/auth/Register'
 import Login from './components/web/auth/Login'
 import SearchPage from './components/web/search/SearchPage'
 import Story from './components/web/story/Story'
-import Account from './components/web/account/Account'
+import Account from './components/web/account/Account.tsx'
 import GameMenu from './components/game/gameMenu/GameMenu'
 import Dialogue from './components/game/dialogue/Dialogue'
 import Contact from './components/web/contact/Contact'
-import Accusation from './components/game/accusation/Accusation'
 import AccusationWrapper from './components/game/accusation/AccusationWrapper'
 import PrivateRoute from './components/routing/PrivateRoute'
 import './App.css'
@@ -29,7 +28,7 @@ const App: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/home" element={<Home />} />
-          
+
           {/* Routes protégées */}
           <Route path="/account" element={
             <PrivateRoute>

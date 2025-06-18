@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Box, Image, Text, Button, VStack, useToast, Collapse, Icon } from '@chakra-ui/react';
+import { useState } from 'react';
+import { Box, Image, Text, Button, VStack, Collapse, Icon } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import type { Character } from '../types';
+import { characterCardStyles, characterCardProps } from './characterCardStyles';
+import type { Character } from '../gameMenuTypes.ts';
 
 interface CharacterCardProps {
   character: Character;
@@ -10,7 +11,6 @@ interface CharacterCardProps {
 
 export const CharacterCard: React.FC<CharacterCardProps> = ({ character, onTalkClick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const toast = useToast();
 
   const handleTalkClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -22,90 +22,38 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, onTalkC
   };
 
   return (
-    <Box
-      borderWidth="1px"
-      borderRadius="xl"
-      overflow="hidden"
-      bg="gray.800"
-      borderColor="whiteAlpha.200"
-      position="relative"
-      transition="all 0.3s"
-      _hover={{
-        transform: 'translateY(-4px)',
-        shadow: '2xl',
-        borderColor: 'brand.primary.400',
-      }}
-      onClick={toggleExpand}
-      cursor="pointer"
-    >
+    <Box sx={characterCardStyles.container} onClick={toggleExpand}>
       <Image
-        src={character.image}
+        src={character.image_url}
         alt={character.name}
-        height="200px"
-        width="100%"
-        objectFit="cover"
-        transition="transform 0.3s"
-        _groupHover={{
-          transform: 'scale(1.05)',
-        }}
+        sx={characterCardStyles.image}
       />
-      <VStack 
-        p={4} 
-        spacing={3} 
-        align="stretch"
-        bg="rgba(26, 32, 44, 0.8)"
-        position="relative"
-        zIndex={2}
-      >
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Text 
-            fontWeight="bold" 
-            fontSize="lg"
-            color="whiteAlpha.900"
-            fontFamily="heading"
-          >
+      <VStack sx={characterCardStyles.contentStack}>
+        <Box sx={characterCardStyles.headerBox}>
+          <Text sx={characterCardStyles.nameText}>
             {character.name}
           </Text>
           <Icon
             as={isExpanded ? ChevronUpIcon : ChevronDownIcon}
-            color="whiteAlpha.600"
-            w={6}
-            h={6}
-            transition="transform 0.2s"
+            sx={characterCardStyles.chevronIcon}
           />
         </Box>
 
         <Collapse in={isExpanded} animateOpacity>
-          <VStack spacing={3} pt={2} pb={3}>
+          <VStack sx={characterCardStyles.expandedStack}>
             <Box>
-              <Text 
-                fontSize="sm" 
-                color="brand.primary.300"
-                fontWeight="semibold"
-                mb={1}
-              >
-                Personnalité
+              <Text sx={characterCardStyles.personalityLabel}>
+                {characterCardProps.labels.personality}
               </Text>
-              <Text 
-                fontSize="sm" 
-                color="whiteAlpha.800"
-              >
-                {character.description}
+              <Text sx={characterCardStyles.personalityText}>
+                {character.personality}
               </Text>
             </Box>
             <Box>
-              <Text 
-                fontSize="sm" 
-                color="brand.secondary.300"
-                fontWeight="semibold"
-                mb={1}
-              >
-                Dans cette affaire
+              <Text sx={characterCardStyles.backstoryLabel}>
+                {characterCardProps.labels.backstory}
               </Text>
-              <Text 
-                fontSize="sm" 
-                color="whiteAlpha.800"
-              >
+              <Text sx={characterCardStyles.backstoryText}>
                 {character.backstory}
               </Text>
             </Box>
@@ -113,27 +61,12 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, onTalkC
         </Collapse>
 
         <Button
-          bgGradient="linear(to-r, brand.primary.500, brand.secondary.500)"
-          color="white"
-          position="relative"
-          zIndex={3}
-          cursor="pointer"
-          py={3}
-          transition="all 0.2s"
-          _hover={{
-            bgGradient: "linear(to-r, brand.primary.600, brand.secondary.600)",
-            transform: "translateY(-2px)",
-            boxShadow: "xl"
-          }}
-          _active={{
-            transform: "translateY(0)",
-            bgGradient: "linear(to-r, brand.primary.700, brand.secondary.700)",
-          }}
+          sx={characterCardStyles.talkButton}
           onClick={handleTalkClick}
           isDisabled={false}
-          aria-label={`Parler avec ${character.name}`}
+          aria-label={characterCardProps.buttonText(character.name)}
         >
-          Parler avec {character.name}
+          {characterCardProps.buttonText(character.name)}
         </Button>
       </VStack>
     </Box>

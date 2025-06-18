@@ -1,6 +1,8 @@
 services:
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: DockerFilePython/Dockerfile
     container_name: mindprod_api
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -16,6 +18,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
+      - NEBIUS_API_KEY=${NEBIUS_API_KEY}
+      - NEBIUS_MODEL_NAME=${NEBIUS_MODEL_NAME}
     networks:
       - mindprod_network
 

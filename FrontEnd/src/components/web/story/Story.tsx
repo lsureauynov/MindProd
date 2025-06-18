@@ -1,171 +1,222 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
+  Heading,
+  Text,
+  Button,
   VStack,
+  Image,
   useToast,
-  Skeleton,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-  Icon,
-  Tooltip,
+  Spinner,
+  Center,
 } from '@chakra-ui/react';
-import { CheckCircleIcon } from '@chakra-ui/icons';
-import { useAuth } from '../../../contexts/AuthContext';
-import StoryHeader from './components/StoryHeader';
-import StoryContent from './components/StoryContent';
-
-interface StoryData {
-  id: string;
-  title: string;
-  content: string;
-  author: string;
-  date: string;
-  imageUrl: string;
-  isCompleted?: boolean;
-}
+import { StoryService } from '../../../services/game/storiesService';
+import { SessionService } from '../../../services/game/sessionService';
+import { PlayerService } from '../../../services/game/playerService';
+import { storyStyles, storyProps } from './storyStyles';
+import type { StoryData, PlayerData } from './storyTypes';
+import type { Session } from '../../../types';
 
 const Story: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toast = useToast();
-  const { isAuthenticated } = useAuth();
+
   const [story, setStory] = useState<StoryData | null>(null);
+  const [player, setPlayer] = useState<PlayerData | null>(null);
+  const [existingSession, setExistingSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [checkingSession, setCheckingSession] = useState(false);
 
-  useEffect(() => {
-    const fetchStory = async () => {
-      try {
-        setLoading(true);
-        // Simuler un appel API
-        const mockStory: StoryData = {
-          id: id || '1',
-          title: "Le Mystère du Manoir",
-          content: "C'était une nuit sombre et orageuse...",
-          author: "Jane Doe",
-          date: "2024-03-20",
-          imageUrl: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9",
-          isCompleted: true // À remplacer par la vraie donnée de l'API
-        };
-        
-        setStory(mockStory);
-        setError(null);
-      } catch (err) {
-        setError("Impossible de charger l'histoire");
+  const showToast = useCallback(
+      (title: string, description: string, status: 'error' | 'warning' | 'success') => {
         toast({
-          title: "Erreur",
-          description: "Impossible de charger l'histoire",
-          status: "error",
+          title,
+          description,
+          status,
           duration: 5000,
           isClosable: true,
-          position: "top",
-          variant: "solid",
-          bg: "red.500",
+          position: 'top',
         });
-      } finally {
-        setLoading(false);
+      },
+      [toast]
+  );
+
+  const fetchStory = useCallback(async () => {
+    if (!id) return;
+    try {
+      const storyData = await StoryService.getInstance().getStoryById(id);
+      setStory(storyData);
+    } catch {
+      setError("Impossible de charger l'histoire");
+      showToast('Erreur', "Impossible de charger l'histoire", 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [id, showToast]);
+
+  const fetchPlayer = useCallback(async () => {
+    try {
+      const currentPlayer = await PlayerService.getInstance().getCurrentPlayer();
+      setPlayer(currentPlayer);
+      return currentPlayer;
+    } catch (err) {
+
+      return null;
+    }
+  }, []);
+
+  const checkExistingSession = useCallback(async (storyId: string, playerId: string) => {
+    try {
+      setCheckingSession(true);
+      const session = await SessionService.getInstance().findSessionByStoryAndPlayer(storyId, playerId);
+      
+      // Ne considérer que les sessions non terminées
+      if (session && session.status !== 'finished') {
+        setExistingSession(session);
+
+      } else {
+        setExistingSession(null);
+        
+      }
+    } catch (error) {
+      
+      setExistingSession(null);
+    } finally {
+      setCheckingSession(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const initializeData = async () => {
+      await fetchStory();
+      const currentPlayer = await fetchPlayer();
+      
+      // Vérifier s'il existe une session pour cette histoire et ce joueur
+      if (id && currentPlayer) {
+        await checkExistingSession(id, currentPlayer.id);
       }
     };
 
-    fetchStory();
-  }, [id, toast]);
+    initializeData();
+  }, [id, fetchStory, fetchPlayer, checkExistingSession]);
 
-  const handlePlay = () => {
-    if (!isAuthenticated) {
-      toast({
-        title: "Connexion requise",
-        description: "Vous devez être connecté pour jouer à cette histoire.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "top",
-        variant: "solid",
-        bg: "orange.500",
-      });
-      return;
+  const handlePlay = async () => {
+    if (!id || !story || !player) return;
+
+    try {
+      if (existingSession) {
+        // Si une session existe, naviguer directement vers le jeu
+  
+        navigate(`/game/${id}`);
+        showToast(
+          'Session reprise',
+          'Vous continuez votre enquête en cours.',
+          'success'
+        );
+      } else {
+        // Créer une nouvelle session
+
+        await SessionService.getInstance().createSession(story.id, player.id);
+        navigate(`/game/${id}`);
+        showToast(
+          'Nouvelle enquête',
+          'Une nouvelle enquête a commencé !',
+          'success'
+        );
+      }
+          } catch (error) {
+      showToast('Erreur', 'Impossible de démarrer la partie', 'error');
     }
-    navigate(`/game/${id}`);
   };
 
-  if (error) {
+  const getButtonText = () => {
+    if (checkingSession) return 'Vérification...';
+    if (existingSession) {
+      if (existingSession.status === 'started') return 'Continuer l\'enquête';
+      if (existingSession.status === 'playing') return 'Reprendre l\'enquête';
+    }
+    return 'Commencer l\'enquête';
+  };
+
+  const getButtonColor = () => {
+    if (existingSession) return 'green';
+    return 'blue';
+  };
+
+  if (loading) {
     return (
-      <Box 
-        as="main" 
-        minH="100vh" 
-        bg="gray.900"
-        bgGradient="linear(to-b, gray.900, gray.800)"
-        py={8}
-      >
-        <Container maxW="container.xl">
-          <Alert 
-            status="error" 
-            variant="solid" 
-            bg="red.500" 
-            color="white"
-            borderRadius="xl"
-          >
-            <AlertIcon />
-            <AlertTitle mr={2}>Erreur!</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </Container>
-      </Box>
+        <Center sx={storyStyles.loadingCenter}>
+          <Spinner size={storyProps.spinner.size} sx={storyStyles.spinner} />
+        </Center>
+    );
+  }
+
+  if (error || !story) {
+    return (
+        <Center sx={storyStyles.errorCenter}>
+          <Text sx={storyStyles.errorText}>{error || 'Histoire non trouvée'}</Text>
+        </Center>
     );
   }
 
   return (
-    <Box 
-      as="main" 
-      minH="100vh" 
-      bg="gray.900"
-      bgGradient="linear(to-b, gray.900, gray.800)"
-      py={8}
-    >
-      <Container maxW="container.xl">
-        <VStack spacing={8} align="stretch">
-          {loading ? (
-            <>
-              <Skeleton 
-                height="60px" 
-                startColor="gray.700" 
-                endColor="gray.600"
-              />
-              <Skeleton 
-                height="24px"
-                startColor="gray.700" 
-                endColor="gray.600"
-              />
-              <Skeleton 
-                height="400px"
-                startColor="gray.700" 
-                endColor="gray.600"
-              />
-            </>
-          ) : story ? (
-            <>
-              <StoryHeader
-                title={story.title}
-                isAuthenticated={isAuthenticated}
-                onPlay={handlePlay}
-                isCompleted={story.isCompleted}
-              />
-              <StoryContent
-                content={story.content}
-                imageUrl={story.imageUrl}
-                title={story.title}
-                author={story.author}
-                date={story.date}
-              />
-            </>
-          ) : null}
+      <Container sx={storyStyles.container}>
+        <VStack spacing={storyProps.container.spacing} align={storyProps.container.align}>
+          <Box sx={storyStyles.imageContainer}>
+            <Image
+                src={story.image_url}
+                alt={story.title}
+                sx={storyStyles.image}
+            />
+            <Box sx={storyStyles.imageOverlay}>
+              <Heading size={storyProps.title.size} sx={storyStyles.title}>
+                {story.title}
+              </Heading>
+            </Box>
+          </Box>
+
+          <Box sx={storyStyles.contentBox}>
+            <Text sx={storyStyles.contentText}>
+              {story.resume}
+            </Text>
+          </Box>
+
+          {existingSession && (
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Text fontSize="sm" color="green.400" fontWeight="medium">
+                Enquête en cours • {existingSession.remaining_lives} vie(s) restante(s)
+              </Text>
+            </Box>
+          )}
+
+          {player ? (
+            <Button
+                size="lg"
+                colorScheme={getButtonColor()}
+                onClick={handlePlay}
+                sx={storyStyles.playButton}
+                isLoading={checkingSession}
+                loadingText="Vérification..."
+            >
+              {getButtonText()}
+            </Button>
+          ) : (
+            <Button
+                size="lg"
+                colorScheme="orange"
+                onClick={() => navigate('/login')}
+                sx={storyStyles.playButton}
+            >
+              Se connecter pour jouer
+            </Button>
+          )}
         </VStack>
       </Container>
-    </Box>
   );
 };
 
-export default Story; 
+export default Story;

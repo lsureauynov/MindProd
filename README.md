@@ -73,6 +73,8 @@ Ce système fonctionne uniquement sur Windows. Assurez-vous d'avoir Docker Deskt
 Si vous êtes sur Linux ou Mac, vous pouvez créer un fichier makefile pour automatiser les commandes.
 ```bash
 # Pour tout le projet
+docker network create mindprod_network
+
 .\build.bat
 .\up.bat
 
@@ -83,6 +85,30 @@ cd FrontEnd && docker compose up
 # Pour le backend uniquement
 cd BackEnd && docker compose build
 cd BackEnd && docker compose up
+```
+
+Ensuite, il faut effectuer la migration des données : 
+```bash
+docker exec -it mindprod_api python manage.py makemigrations
+docker exec -it mindprod_api python manage.py migrate
+```
+
+Si on veut migrer de fausses données : 
+```bash
+cd BackEnd
+docker exec -it mindprod_api sh
+python load_dev_data.py
+```
+ou
+```bash
+python load_dev_data.py --flush
+```
+
+Pour créer un superUser :
+```bash
+cd BackEnd
+docker exec -it mindprod_api sh
+python manage.py createsuperuser
 ```
 
 ## 🎮 Fonctionnalités du Jeu

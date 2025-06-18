@@ -1,17 +1,23 @@
-import React from 'react';
 import {
   Box,
   Image,
   Text,
   VStack,
 } from '@chakra-ui/react';
-import type { SuspectCardProps } from '../types';
+import type { SuspectCardProps } from '../accusationTypes.ts';
 
 export const SuspectCard: React.FC<SuspectCardProps> = ({
   suspect,
   isSelected,
   onSelect,
+  isDisabled = false,
 }) => {
+  const handleClick = () => {
+    if (!isDisabled) {
+      onSelect(suspect);
+    }
+  };
+
   return (
     <Box
       borderWidth="1px"
@@ -19,15 +25,16 @@ export const SuspectCard: React.FC<SuspectCardProps> = ({
       overflow="hidden"
       bg="gray.800"
       borderColor={isSelected ? "brand.primary.500" : "whiteAlpha.200"}
-      cursor="pointer"
-      onClick={() => onSelect(suspect)}
+      cursor={isDisabled ? "not-allowed" : "pointer"}
+      onClick={handleClick}
       position="relative"
       transition="all 0.3s"
-      _hover={{
+      opacity={isDisabled ? 0.6 : 1}
+      _hover={!isDisabled ? {
         transform: 'translateY(-4px)',
         shadow: '2xl',
         borderColor: 'brand.primary.400',
-      }}
+      } : {}}
       _before={{
         content: '""',
         position: 'absolute',
@@ -41,15 +48,15 @@ export const SuspectCard: React.FC<SuspectCardProps> = ({
       }}
     >
       <Image
-        src={suspect.image}
+        src={suspect.image_url}
         alt={suspect.name}
         height="200px"
         width="100%"
         objectFit="cover"
         transition="transform 0.3s"
-        _groupHover={{
+        _groupHover={!isDisabled ? {
           transform: 'scale(1.05)',
-        }}
+        } : {}}
       />
       <VStack 
         p={4} 
@@ -62,7 +69,7 @@ export const SuspectCard: React.FC<SuspectCardProps> = ({
           fontWeight="bold"
           fontSize="lg"
           textAlign="center"
-          color="whiteAlpha.900"
+          color={isDisabled ? "whiteAlpha.600" : "whiteAlpha.900"}
           fontFamily="heading"
           bgGradient={isSelected ? "linear(to-r, brand.primary.400, brand.secondary.400)" : "none"}
           bgClip={isSelected ? "text" : "none"}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -8,39 +8,88 @@ import {
   Input,
   IconButton,
   HStack,
-  Button,
   useBreakpointValue,
-  Flex,
   useToast,
-  Avatar,
   Text,
-  Collapse,
-  Icon,
+  Spinner,
+  Center,
+  Avatar,
+  Image,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure
 } from '@chakra-ui/react';
-import { ArrowBackIcon, ArrowForwardIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import type { Message, DialogueCharacter } from './types';
-import type { Clue } from '../gameMenu/types';
+import { ArrowBackIcon, ArrowForwardIcon, InfoIcon, ViewIcon } from '@chakra-ui/icons';
+import { CharacterService } from '../../../services/game/characterService';
+import { CluesService } from '../../../services/game/cluesService';
+import { SessionService } from '../../../services/game/sessionService';
+import { PlayerService } from '../../../services/game/playerService';
+import { DialogueService } from '../../../services/game/dialogueService';
+import type { Message } from './dialogueTypes';
+import type { Clue } from '../gameMenu/gameMenuTypes';
+import type { Dialogue, Session, Player, Character } from '../../../types';
 import { MessageBubble } from './components/MessageBubble';
 import { CluesList } from './components/CluesList';
+import type {DiscoveredClue} from "../gameMenu/gameMenuTypes";
+import { dialogueStyles, dialogueProps } from './dialogueStyles';
 
 const Dialogue: React.FC = () => {
-  const { id, characterId } = useParams<{ id: string; characterId: string }>();
+  const { id: storyId, characterId } = useParams<{ id: string; characterId: string }>();
   const navigate = useNavigate();
   const toast = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [isCluesExpanded, setIsCluesExpanded] = useState(false);
-  const [isCharacterInfoExpanded, setIsCharacterInfoExpanded] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const containerWidth = useBreakpointValue({ base: "100%", md: "90%", lg: "80%", xl: "70%" });
-  const inputHeight = useBreakpointValue({ base: "60px", md: "70px" });
+  const showCluesPanel = useBreakpointValue({ base: false, lg: true });
   
+  const [character, setCharacter] = useState<Character | null>(null);
+  const [clues, setClues] = useState<Clue[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [discoveredClues] = useState<DiscoveredClue[]>([]);
+  const [imageError, setImageError] = useState(false);
+  const [currentSession, setCurrentSession] = useState<Session | null>(null);
+  const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
+  const [isLoadingMessage, setIsLoadingMessage] = useState(false);
+  
+  const { isOpen: isCharacterOpen, onOpen: onCharacterOpen, onClose: onCharacterClose } = useDisclosure();
+  const { isOpen: isCluesOpen, onOpen: onCluesOpen, onClose: onCluesClose } = useDisclosure();
+  const convertDialoguesToMessages = (dialogues: Dialogue[]): Message[] => {
+    const messages: Message[] = [];
+    
+    dialogues.forEach((dialogue) => {
+      if (dialogue.player_question) {
+        messages.push({
+          id: `${dialogue.id}-question`,
+          content: dialogue.player_question,
+          sender: 'user',
+          timestamp: new Date(dialogue.created_at),
+        });
+      }
+      
+      if (dialogue.character_answer) {
+        messages.push({
+          id: `${dialogue.id}-answer`,
+          content: dialogue.character_answer,
+          sender: 'character',
+          timestamp: new Date(dialogue.created_at),
+        });
+      }
+    });
+    return messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  };
+
   useEffect(() => {
-    if (!id || !characterId) {
+    if (!storyId || !characterId) {
       toast({
         title: "Erreur",
-        description: "Paramètres manquants pour le dialogue",
+        description: dialogueProps.errorMessages.missingParams,
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -48,28 +97,85 @@ const Dialogue: React.FC = () => {
       navigate('/');
       return;
     }
-  }, [id, characterId, navigate, toast]);
-  
-  // Mock data - À remplacer par des appels API réels
-  const mockCharacter: DialogueCharacter = {
-    id: characterId || '',
-    name: characterId === '1' ? 'Jean Dupont' : 'Marie Martin',
-    image: characterId === '1' 
-      ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e'
-      : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
-    type: 'suspect',
-    description: characterId === '1'
-      ? 'Un homme d\'affaires ambitieux et charismatique, connu pour son tempérament impulsif.'
-      : 'Une comptable méticuleuse avec un sens aigu du détail et une réputation d\'intégrité.',
-    backstory: characterId === '1'
-      ? 'Associé principal de la victime dans plusieurs projets immobiliers controversés. A été vu en train de se disputer violemment avec elle la veille du drame.'
-      : 'A découvert des irrégularités dans les comptes de la société quelques jours avant le meurtre. Menacée de licenciement par la victime.'
-  };
 
-  const mockClues: Clue[] = [
-    { id: '1', name: 'Empreintes', description: 'Des empreintes digitales ont été trouvées sur la poignée de porte.' },
-    { id: '2', name: 'Note', description: 'Une note mystérieuse a été découverte dans la chambre.' },
-  ];
+    const token = localStorage.getItem('access');
+    if (!token) {
+      toast({
+        title: "Erreur",
+        description: "Vous devez être connecté pour accéder aux dialogues.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/login');
+      return;
+    }
+  }, [storyId, characterId, navigate, toast]);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!storyId || !characterId) return;
+      
+      try {
+        setLoading(true);
+        
+        const currentPlayer = await PlayerService.getInstance().getCurrentPlayer();
+        setCurrentPlayer(currentPlayer);
+        
+        let session = await SessionService.getInstance().findSessionByStoryAndPlayer(storyId, currentPlayer.id);
+        
+        if (!session) {
+          toast({
+            title: "Erreur",
+            description: "Aucune session de jeu trouvée. Retour au menu.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+          });
+          navigate(`/game/${storyId}`);
+          return;
+        }
+        
+        setCurrentSession(session);
+        
+        const [suspects, witnesses] = await Promise.all([
+          CharacterService.getInstance().getSuspectsByStory(storyId),
+          CharacterService.getInstance().getWitnessesByStory(storyId),
+        ]);
+        
+        const character = suspects.find(c => c.id === characterId) || witnesses.find(w => w.id === characterId);
+        
+        if (character) {
+          setCharacter(character);
+          setImageError(false);
+        } else {
+          setError("Personnage non trouvé");
+          return;
+        }
+        
+        const cluesData = await CluesService.getInstance().getCluesByStories(storyId);
+        setClues(cluesData);
+        
+        const dialogues = await DialogueService.getInstance().getDialogueByCharactersSessionOrderByDate(characterId, session.id);
+        const dialogueMessages = convertDialoguesToMessages(dialogues);
+        setMessages(dialogueMessages);
+        
+      } catch (err) {
+        setError("Erreur lors du chargement des données");
+        toast({
+          title: "Erreur",
+          description: dialogueProps.errorMessages.loadError,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [storyId, characterId, toast, navigate]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,278 +185,363 @@ const Dialogue: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputValue.trim() || !currentSession || !currentPlayer || !character) return;
+    if (isLoadingMessage) return;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
+    const userMessage = inputValue.trim();
+    setInputValue('');
+    setIsLoadingMessage(true);
+    const newUserMessage: Message = {
+      id: `temp-user-${Date.now()}`,
+      content: userMessage,
       sender: 'user',
       timestamp: new Date(),
     };
+    setMessages(prev => [...prev, newUserMessage]);
 
-    setMessages(prev => [...prev, newMessage]);
-    setInputValue('');
+    try {
+      const token = localStorage.getItem('access');
+      if (!token) {
+        throw new Error('Token d\'authentification manquant');
+      }
+      
+      const dialogue = await DialogueService.getInstance().createDialogue(
+        userMessage,
+        character.id,
+        currentPlayer.id,
+        currentSession.id
+      );
 
-    // Simuler une réponse du personnage après 1 seconde
-    setTimeout(() => {
-      const response: Message = {
-        id: (Date.now() + 1).toString(),
-        content: "Je ne peux pas en dire plus pour le moment...",
-        sender: 'character',
-        timestamp: new Date(),
+      const realUserMessage: Message = {
+        id: `${dialogue.id}-question`,
+        content: userMessage,
+        sender: 'user',
+        timestamp: new Date(dialogue.created_at),
       };
-      setMessages(prev => [...prev, response]);
-    }, 1000);
+
+      const characterResponse: Message = {
+        id: `${dialogue.id}-answer`,
+        content: dialogue.character_answer || "Je réfléchis à votre question...",
+        sender: 'character',
+        timestamp: new Date(dialogue.created_at),
+      };
+
+      setMessages(prev => {
+        const filtered = prev.filter(msg => msg.id !== newUserMessage.id);
+        return [...filtered, realUserMessage, characterResponse];
+      });
+
+    } catch (error: any) {
+      let errorMessage = "Impossible d'envoyer le message. Veuillez réessayer.";
+      
+      if (error.response?.status === 401) {
+        errorMessage = "Session expirée. Veuillez vous reconnecter.";
+        navigate('/login');
+      } else if (error.message === 'Token d\'authentification manquant') {
+        errorMessage = "Vous devez être connecté pour envoyer un message.";
+        navigate('/login');
+      }
+
+      toast({
+        title: "Erreur",
+        description: errorMessage,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      
+      setMessages(prev => prev.filter(msg => msg.id !== newUserMessage.id));
+    } finally {
+      setIsLoadingMessage(false);
+    }
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isLoadingMessage) {
       handleSendMessage();
     }
   };
 
   const handleBackToMenu = () => {
-    navigate(`/game/${id}`);
+    navigate(`/game/${storyId}`);
   };
 
-  return (
-    <Box 
-      as="main" 
-      minH="100vh"
-      bg="gray.900"
-      bgGradient="linear(to-b, gray.900, gray.800)"
-      py={8}
-    >
-      <Container 
-        maxW={containerWidth} 
-        h="100%"
-        display="flex"
-        flexDirection="column"
-      >
-        <Flex direction="column" h="calc(100vh - 4rem)">
-          <Box mb={6}>
-            <Button
-              leftIcon={<ArrowBackIcon />}
-              onClick={handleBackToMenu}
-              bgGradient="linear(to-r, brand.primary.500, brand.secondary.500)"
-              color="white"
-              size={{ base: "md", md: "lg" }}
-              px={{ base: 4, md: 6 }}
-              _hover={{
-                transform: 'translateX(-4px)',
-                bgGradient: "linear(to-r, brand.primary.400, brand.secondary.400)",
-              }}
-              _active={{
-                bgGradient: "linear(to-r, brand.primary.600, brand.secondary.600)",
-              }}
-            >
-              Retour au menu du jeu
-            </Button>
-          </Box>
+  if (loading) {
+    return (
+      <Center sx={dialogueStyles.loadingContainer}>
+        <Spinner sx={dialogueStyles.loadingSpinner} />
+      </Center>
+    );
+  }
 
-          <Box
-            bg="gray.800"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderColor="whiteAlpha.200"
-            mb={4}
-            overflow="hidden"
-          >
-            <Box
-              p={4}
-              bg="rgba(26, 32, 44, 0.8)"
-              backdropFilter="blur(8px)"
-              cursor="pointer"
-              onClick={() => setIsCharacterInfoExpanded(!isCharacterInfoExpanded)}
-            >
-              <Flex align="center" justify="space-between">
-                <HStack spacing={4}>
-                  <Avatar
-                    size="lg"
-                    name={mockCharacter.name}
-                    src={mockCharacter.image}
-                  />
-                  <Box>
-                    <Text
-                      fontSize="xl"
-                      fontWeight="bold"
-                      color="whiteAlpha.900"
-                    >
-                      {mockCharacter.name}
-                    </Text>
-                    <Text
-                      fontSize="sm"
-                      color="whiteAlpha.700"
-                      textTransform="capitalize"
-                    >
-                      {mockCharacter.type}
-                    </Text>
+  if (error || !character) {
+    return (
+      <Center sx={dialogueStyles.errorContainer}>
+        <Text sx={dialogueStyles.errorText}>
+          {error || dialogueProps.errorMessages.characterNotFound}
+        </Text>
+      </Center>
+    );
+  }
+
+  return (
+    <Box sx={dialogueStyles.mainContainer}>
+      <Container sx={dialogueStyles.container(containerWidth)}>
+        <Box sx={dialogueStyles.chatHeader}>
+          <IconButton
+            icon={<ArrowBackIcon />}
+            onClick={handleBackToMenu}
+            sx={dialogueStyles.backButton}
+            aria-label={dialogueProps.backButtonText}
+          />
+          
+          <Box sx={dialogueStyles.characterHeaderInfo}>
+            <Avatar
+              src={!imageError ? character.image_url : undefined}
+              name={character.name}
+              sx={dialogueStyles.characterAvatar}
+            />
+            <VStack spacing={0} align="start">
+              <Text sx={dialogueStyles.characterNameHeader}>
+                {character.name}
+              </Text>
+              <Text sx={dialogueStyles.characterStatus}>
+                {character.role} • En ligne
+              </Text>
+            </VStack>
+          </Box>
+          
+          <HStack sx={dialogueStyles.headerActions}>
+            <IconButton
+              icon={<InfoIcon />}
+              onClick={onCharacterOpen}
+              sx={dialogueStyles.infoButton}
+              aria-label="Informations du personnage"
+            />
+            {clues.length > 0 && (
+              <IconButton
+                icon={<ViewIcon />}
+                onClick={onCluesOpen}
+                sx={dialogueStyles.infoButton}
+                aria-label="Indices découverts"
+              />
+            )}
+          </HStack>
+        </Box>
+
+        <Box sx={dialogueStyles.characterCard}>
+          <Box sx={dialogueStyles.characterImageContainer}>
+            {!imageError && character.image_url ? (
+              <Image
+                src={character.image_url}
+                alt={character.name}
+                sx={dialogueStyles.characterImage}
+                onError={() => setImageError(true)}
+                fallback={
+                  <Box sx={dialogueStyles.characterImageFallback}>
+                    <Avatar
+                      name={character.name}
+                      size="2xl"
+                      sx={dialogueStyles.characterAvatarFallback}
+                    />
                   </Box>
-                </HStack>
-                <Icon
-                  as={isCharacterInfoExpanded ? ChevronUpIcon : ChevronDownIcon}
-                  w={6}
-                  h={6}
-                  color="whiteAlpha.600"
+                }
+              />
+            ) : (
+              <Box sx={dialogueStyles.characterImageFallback}>
+                <Avatar
+                  name={character.name}
+                  size="2xl"
+                  sx={dialogueStyles.characterAvatarFallback}
                 />
-              </Flex>
-              
-              <Collapse in={isCharacterInfoExpanded} animateOpacity>
-                <VStack spacing={3} mt={4} align="stretch">
-                  <Box>
-                    <Text
-                      fontSize="sm"
-                      color="brand.primary.300"
-                      fontWeight="semibold"
-                      mb={1}
-                    >
-                      Personnalité
-                    </Text>
-                    <Text
-                      fontSize="sm"
-                      color="whiteAlpha.800"
-                    >
-                      {mockCharacter.description}
-                    </Text>
-                  </Box>
-                  <Box>
-                    <Text
-                      fontSize="sm"
-                      color="brand.secondary.300"
-                      fontWeight="semibold"
-                      mb={1}
-                    >
-                      Dans cette affaire
-                    </Text>
-                    <Text
-                      fontSize="sm"
-                      color="whiteAlpha.800"
-                    >
-                      {mockCharacter.backstory}
-                    </Text>
-                  </Box>
-                </VStack>
-              </Collapse>
+              </Box>
+            )}
+            <Box sx={dialogueStyles.characterOverlay}>
+              <Text sx={dialogueStyles.characterName}>
+                {character.name}
+              </Text>
             </Box>
           </Box>
 
+          <Box sx={dialogueStyles.characterInfo}>
+            <VStack sx={dialogueStyles.characterInfoStack}>
+              <Box w="full">
+                <Text sx={dialogueStyles.personalityLabel}>
+                  {dialogueProps.personalityLabel}
+                </Text>
+                <Text sx={dialogueStyles.personalityText}>
+                  {character.personality}
+                </Text>
+              </Box>
+              <Box w="full">
+                <Text sx={dialogueStyles.backstoryLabel}>
+                  {dialogueProps.backstoryLabel}
+                </Text>
+                <Text sx={dialogueStyles.backstoryText}>
+                  {character.backstory}
+                </Text>
+              </Box>
+            </VStack>
+          </Box>
+        </Box>
+
+        <Box sx={dialogueStyles.chatContainer}>
           <Box
-            flex="1"
-            bg="gray.800"
-            borderRadius="xl"
-            borderWidth="1px"
-            borderColor="whiteAlpha.200"
-            boxShadow="2xl"
-            overflow="hidden"
-            display="flex"
-            flexDirection="column"
-            position="relative"
-            _before={{
-              content: '""',
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              bg: 'rgba(0, 0, 0, 0.2)',
-              backdropFilter: 'blur(8px)',
-              zIndex: 0,
+            sx={{
+              ...dialogueStyles.messagesContainer,
+              ...dialogueStyles.scrollbarStyles,
             }}
           >
-            <Box
-              flex="1"
-              overflowY="auto"
-              px={{ base: 3, md: 6 }}
-              py={{ base: 4, md: 6 }}
-              position="relative"
-              zIndex={1}
-              css={{
-                '&::-webkit-scrollbar': {
-                  width: '4px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  width: '6px',
-                  background: 'rgba(0, 0, 0, 0.2)',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: 'brand.primary.500',
-                  borderRadius: '24px',
-                },
-              }}
-            >
-              <VStack spacing={4} align="stretch">
-                {messages.map((message) => (
-                  <MessageBubble
-                    key={message.id}
-                    message={message}
-                    characterImage={mockCharacter.image}
-                  />
-                ))}
-                <div ref={messagesEndRef} />
-              </VStack>
-            </Box>
-
-            <Box
-              borderTopWidth={1}
-              borderColor="whiteAlpha.200"
-              bg="gray.800"
-              p={{ base: 3, md: 4 }}
-              boxShadow="0 -2px 10px rgba(0,0,0,0.2)"
-              position="relative"
-              zIndex={1}
-            >
-              <HStack spacing={3}>
-                <Input
-                  value={inputValue}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Tapez votre message..."
-                  size="lg"
-                  bg="gray.700"
-                  color="white"
-                  borderColor="whiteAlpha.200"
-                  h={inputHeight}
-                  _hover={{
-                    borderColor: "brand.primary.400"
-                  }}
-                  _focus={{
-                    borderColor: "brand.primary.400",
-                    boxShadow: "0 0 0 1px var(--chakra-colors-brand-primary-400)"
-                  }}
-                  _placeholder={{
-                    color: "whiteAlpha.600"
-                  }}
+            <VStack sx={dialogueStyles.messagesStack}>
+              {messages.length === 0 && (
+                <Box sx={dialogueStyles.emptyState}>
+                  <Text sx={dialogueStyles.emptyStateText}>
+                    {dialogueProps.emptyStateText(character.name)}
+                  </Text>
+                </Box>
+              )}
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  characterImage={!imageError ? character.image_url : ''}
+                  characterName={character.name}
                 />
-                <IconButton
-                  aria-label="Send message"
-                  icon={<ArrowForwardIcon />}
-                  onClick={handleSendMessage}
-                  isDisabled={!inputValue.trim()}
-                  size="lg"
-                  bgGradient="linear(to-r, brand.primary.500, brand.secondary.500)"
-                  color="white"
-                  h={inputHeight}
-                  w={inputHeight}
-                  _hover={{
-                    bgGradient: "linear(to-r, brand.primary.400, brand.secondary.400)",
-                  }}
-                  _active={{
-                    bgGradient: "linear(to-r, brand.primary.600, brand.secondary.600)",
-                  }}
-                />
-              </HStack>
-            </Box>
+              ))}
+              <div ref={messagesEndRef} />
+            </VStack>
           </Box>
 
-          <Box mt={6}>
-            <CluesList 
-              clues={mockClues} 
-              onExpandChange={setIsCluesExpanded}
-            />
+          <Box sx={dialogueStyles.inputContainer}>
+            <HStack sx={dialogueStyles.inputStack}>
+              <Input
+                value={inputValue}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={dialogueProps.inputPlaceholder}
+                sx={dialogueStyles.messageInput}
+              />
+              <IconButton
+                aria-label={dialogueProps.sendButtonLabel}
+                icon={<ArrowForwardIcon />}
+                onClick={handleSendMessage}
+                isDisabled={!inputValue.trim() || isLoadingMessage}
+                isLoading={isLoadingMessage}
+                sx={dialogueStyles.sendButton}
+              />
+            </HStack>
           </Box>
-        </Flex>
+        </Box>
+
+        {showCluesPanel && clues.length > 0 && (
+          <Box sx={dialogueStyles.cluesPanel}>
+            <Box sx={dialogueStyles.cluesPanelHeader}>
+              <Text sx={dialogueStyles.cluesPanelTitle}>
+                Indices découverts
+              </Text>
+            </Box>
+            <Box flex={1} overflowY="auto" p={4}>
+              <CluesList
+                clues={clues}
+                discoveredClues={discoveredClues}
+                onClueClick={(clue) => {
+                  toast({
+                    title: dialogueProps.toastMessages.clueTitle,
+                    description: clue.description,
+                    status: "info",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                }}
+              />
+            </Box>
+          </Box>
+        )}
       </Container>
+      
+      <Modal isOpen={isCharacterOpen} onClose={onCharacterClose} size="full">
+        <ModalOverlay />
+        <ModalContent bg="gray.900">
+          <ModalHeader color="white">Informations du personnage</ModalHeader>
+          <ModalCloseButton color="white" />
+          <ModalBody>
+            <VStack spacing={4} align="center" p={4}>
+              {!imageError && character.image_url ? (
+                <Image
+                  src={character.image_url}
+                  alt={character.name}
+                  maxH="200px"
+                  objectFit="cover"
+                  borderRadius="lg"
+                  onError={() => setImageError(true)}
+                  fallback={
+                    <Avatar
+                      name={character.name}
+                      size="2xl"
+                      bg="blue.500"
+                    />
+                  }
+                />
+              ) : (
+                <Avatar
+                  name={character.name}
+                  size="2xl"
+                  bg="blue.500"
+                />
+              )}
+              
+              <Text fontSize="xl" fontWeight="bold" color="white">
+                {character.name}
+              </Text>
+              
+              <Box w="full">
+                <Text fontSize="md" fontWeight="semibold" color="blue.300" mb={2}>
+                  Personnalité
+                </Text>
+                <Text color="gray.300" fontSize="sm">
+                  {character.personality}
+                </Text>
+              </Box>
+              
+              <Box w="full">
+                <Text fontSize="md" fontWeight="semibold" color="violet.300" mb={2}>
+                  Histoire
+                </Text>
+                <Text color="gray.300" fontSize="sm">
+                  {character.backstory}
+                </Text>
+              </Box>
+            </VStack>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      
+      {clues.length > 0 && (
+        <Modal isOpen={isCluesOpen} onClose={onCluesClose} size="full">
+          <ModalOverlay />
+          <ModalContent bg="gray.900">
+            <ModalHeader color="white">Indices découverts</ModalHeader>
+            <ModalCloseButton color="white" />
+            <ModalBody>
+              <CluesList
+                clues={clues}
+                discoveredClues={discoveredClues}
+                onClueClick={(clue) => {
+                  toast({
+                    title: dialogueProps.toastMessages.clueTitle,
+                    description: clue.description,
+                    status: "info",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                  onCluesClose();
+                }}
+              />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+      )}
     </Box>
   );
 };

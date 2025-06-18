@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
@@ -30,7 +30,6 @@ const Login: React.FC = () => {
     password: ''
   });
 
-  // Récupérer la page demandée avant la redirection
   const from = location.state?.from?.pathname || '/stories';
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,17 +180,18 @@ const Login: React.FC = () => {
 
               <Text color="whiteAlpha.600" fontSize="sm">
                 Pas encore de compte ?{' '}
-                <Button
+                <Text
                   as={RouterLink}
                   to="/register"
-                  variant="link"
                   color="brand.primary.400"
                   _hover={{
                     color: "brand.primary.300",
                   }}
+                  cursor="pointer"
+                  textDecoration="underline"
                 >
                   S'inscrire
-                </Button>
+                </Text>
               </Text>
             </VStack>
           </VStack>
