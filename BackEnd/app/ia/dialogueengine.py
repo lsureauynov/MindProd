@@ -1,7 +1,7 @@
 from ia.caseloader import CaseLoader
 from ia.dialogueloader import DialogueLoader
 from ia.promptbuilder import PromptBuilder
-from ia.ollama import Ollama
+from ia.nebillm import NebiLLM
 
 class DialogueEngine:
 
@@ -12,7 +12,7 @@ class DialogueEngine:
         self.player_question = player_question
         self.case_loader = CaseLoader(character)
         self.dialogue_loader = DialogueLoader(character, player, session)
-        self.ollama = Ollama()
+        self.nebillm = NebiLLM()
 
     def run(self):
 
@@ -38,7 +38,7 @@ class DialogueEngine:
 
         prompt = prompt.build()
 
-        answer = self.ollama.ask_ollama(prompt)
+        answer = self.nebillm.ask(prompt)
 
         return answer
 

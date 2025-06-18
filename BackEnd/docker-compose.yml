@@ -18,23 +18,10 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
-      - OLLAMA_URL=${OLLAMA_URL}
-      - OLLAMA_MODEL_NAME=${OLLAMA_MODEL_NAME}
+      - NEBIUS_API_KEY=${NEBIUS_API_KEY}
+      - NEBIUS_MODEL_NAME=${NEBIUS_MODEL_NAME}
     networks:
       - mindprod_network
-
-  ollama:
-    build:
-      context: .
-      dockerfile: DockerFileOllama/Dockerfile
-    container_name: ollama
-    ports:
-      - "11434:11434"
-    volumes:
-      - ./ollama_data:/root/.ollama
-    networks:
-      - mindprod_network
-    restart: unless-stopped
 
   db:
     image: postgres:15
@@ -71,4 +58,3 @@ networks:
 volumes:
   pgdata:
   pgadmin_data:
-  ollama_data:
