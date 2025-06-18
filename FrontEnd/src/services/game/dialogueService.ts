@@ -25,13 +25,18 @@ export class DialogueService {
         return response.data;
     }
 
-    async createDialogue(character_answer:string, player_question:string, character:string, player:string, session:string): Promise<Dialogue> {
+    async createDialogue(player_question:string, character:string, player:string, session:string): Promise<Dialogue> {
+        const token = localStorage.getItem('access');
+        
         const response = await api.post(`/dialogues/`, {
-            character_answer: character_answer,
             player_question: player_question,
             character: character,
             player: player,
             session: session
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         return response.data;
     }
@@ -44,8 +49,13 @@ export class DialogueService {
     }
 
     async getDialogueByCharactersSessionOrderByDate(characterId: string, session: string): Promise<Dialogue[]> {
+        const token = localStorage.getItem('access');
+        
         const response = await api.get(`/dialogues/`, {
-            params: { character: characterId, session: session, ordering: 'created_at' }
+            params: { character: characterId, session: session, ordering: 'created_at' },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
         });
         return response.data.results;
     }

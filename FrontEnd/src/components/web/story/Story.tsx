@@ -64,7 +64,7 @@ const Story: React.FC = () => {
       setPlayer(currentPlayer);
       return currentPlayer;
     } catch (err) {
-      console.warn('Aucun joueur connecté ou erreur de récupération.');
+
       return null;
     }
   }, []);
@@ -77,13 +77,13 @@ const Story: React.FC = () => {
       // Ne considérer que les sessions non terminées
       if (session && session.status !== 'finished') {
         setExistingSession(session);
-        console.log('Session existante trouvée:', session.id, 'Status:', session.status);
+
       } else {
         setExistingSession(null);
-        console.log('Aucune session active trouvée');
+        
       }
     } catch (error) {
-      console.error('Erreur lors de la vérification de session:', error);
+      
       setExistingSession(null);
     } finally {
       setCheckingSession(false);
@@ -110,7 +110,7 @@ const Story: React.FC = () => {
     try {
       if (existingSession) {
         // Si une session existe, naviguer directement vers le jeu
-        console.log('Navigation vers session existante:', existingSession.id);
+  
         navigate(`/game/${id}`);
         showToast(
           'Session reprise',
@@ -119,7 +119,7 @@ const Story: React.FC = () => {
         );
       } else {
         // Créer une nouvelle session
-        console.log('Création d\'une nouvelle session');
+
         await SessionService.getInstance().createSession(story.id, player.id);
         navigate(`/game/${id}`);
         showToast(
@@ -128,8 +128,7 @@ const Story: React.FC = () => {
           'success'
         );
       }
-    } catch (error) {
-      console.error('Erreur lors du démarrage/reprise:', error);
+          } catch (error) {
       showToast('Erreur', 'Impossible de démarrer la partie', 'error');
     }
   };

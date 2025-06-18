@@ -6,4 +6,5 @@ FrontEnd/npm-debug.log*
 FrontEnd/node_modules
 FrontEnd/dist
 FrontEnd/dist-ssr
+BackEnd/ollama_data
 

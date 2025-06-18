@@ -20,8 +20,7 @@ export const useAuthProviderLogic = () => {
         try {
             const profile = await userService.getCurrentUser();
             setUser(profile);
-        } catch (error) {
-            console.error('Impossible de récupérer le profil utilisateur', error);
+              } catch (error) {
             setUser(null);
         }
     };
@@ -34,8 +33,7 @@ export const useAuthProviderLogic = () => {
                 setIsAuthenticated(!!tokens);
                 await fetchUser();
             }
-        } catch (error) {
-            console.error("Erreur de vérification d'authentification:", error);
+            } catch (error) {
         } finally {
             setIsLoading(false);
         }
@@ -57,8 +55,7 @@ export const useAuthProviderLogic = () => {
                 duration: 3000,
                 isClosable: true
             });
-        } catch (error) {
-            console.error('Erreur de connexion:', error);
+            } catch (error) {
             toast({
                 title: 'Erreur de connexion',
                 description: 'Vérifiez vos identifiants et réessayez',
@@ -89,8 +86,7 @@ export const useAuthProviderLogic = () => {
             });
             
             return userProfile;
-        } catch (error) {
-            console.error("Erreur d'inscription:", error);
+            } catch (error) {
             toast({
                 title: "Erreur d'inscription",
                 description: "Une erreur est survenue lors de l'inscription",

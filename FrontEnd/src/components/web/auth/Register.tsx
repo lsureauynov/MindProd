@@ -73,14 +73,13 @@ const Register: React.FC = () => {
             formData.image_url
           );
         } catch (playerError) {
-          console.warn('Erreur lors de la création du joueur:', playerError);
+  
           // On continue même si la création du joueur échoue
         }
       }
       
       navigate('/stories');
-    } catch (err) {
-      console.error('Erreur d\'inscription:', err);
+          } catch (err) {
       setError('Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
     } finally {
       setIsLoading(false);

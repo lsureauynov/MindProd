@@ -21,7 +21,6 @@ export const CluesList: React.FC<CluesListProps> = ({
   clues, 
   discoveredClues, 
   onExpandChange,
-  onClueClick 
 }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -35,7 +34,7 @@ export const CluesList: React.FC<CluesListProps> = ({
   const unlockedClues = clues.filter(clue => discoveredClueIds.has(clue.id));
 
   return (
-    <Box sx={cluesListStyles.container(isExpanded)}>
+    <Box sx={cluesListStyles.container}>
       <Box sx={cluesListStyles.header}>
         <Heading sx={cluesListStyles.title}>
           {cluesListProps.titleText(unlockedClues.length)}
@@ -48,7 +47,7 @@ export const CluesList: React.FC<CluesListProps> = ({
         />
       </Box>
 
-      <Box sx={cluesListStyles.content(isExpanded)}>
+      <Box sx={cluesListStyles.content}>
         <SimpleGrid sx={cluesListStyles.grid}>
           {unlockedClues.map((clue) => (
             <ClueCard 

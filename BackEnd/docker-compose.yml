@@ -1,6 +1,8 @@
 services:
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: DockerFilePython/Dockerfile
     container_name: mindprod_api
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -20,6 +22,19 @@ services:
       - OLLAMA_MODEL_NAME=${OLLAMA_MODEL_NAME}
     networks:
       - mindprod_network
+
+  ollama:
+    build:
+      context: .
+      dockerfile: DockerFileOllama/Dockerfile
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    networks:
+      - mindprod_network
+    restart: unless-stopped
 
   db:
     image: postgres:15
@@ -56,3 +71,4 @@ networks:
 volumes:
   pgdata:
   pgadmin_data:
+  ollama_data:

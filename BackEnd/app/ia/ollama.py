@@ -24,29 +24,18 @@ class Ollama:
         self.model = os.getenv('OLLAMA_MODEL_NAME')
         self.api_url = os.getenv('OLLAMA_URL')
 
-    #def ask_ollama(self, prompt):
-        #    headers = {'Content-Type': 'application/json'}
-        #payload = {
-            #'model': self.model,
-            #'prompt': prompt,
-            #'stream': True
-        #}
-        #response = requests.post(self.api_url, headers=headers, json=payload, stream=True)
-        #response.raise_for_status()
-
-        #return parse_answer(response)
-
     def ask_ollama(self, prompt):
         headers = {'Content-Type': 'application/json'}
         payload = {
             'model': self.model,
             'prompt': prompt,
-            'stream': False  # test sans stream
+            'stream': True
         }
-        response = requests.post(self.api_url, headers=headers, json=payload)
+        response = requests.post(self.api_url, headers=headers, json=payload, stream=True)
         response.raise_for_status()
-        data = response.json()
-        print("Response data:", data)  # Debug ici
-        return data["response"].strip()
+
+        return parse_answer(response)
+        
+
 
 

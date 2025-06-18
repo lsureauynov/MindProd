@@ -2,7 +2,6 @@ import {
   Box,
   Text,
   Avatar,
-  useBreakpointValue,
   Flex,
 } from '@chakra-ui/react';
 import type { Message } from '../dialogueTypes';
@@ -11,35 +10,31 @@ import { messageBubbleStyles, messageBubbleProps } from './messageBubbleStyles';
 interface MessageBubbleProps {
   message: Message;
   characterImage: string;
+  characterName?: string;
 }
 
-export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, characterImage }) => {
+export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, characterImage, characterName }) => {
   const isUser = message.sender === 'user';
-  const maxWidth = useBreakpointValue({ base: "75%", sm: "70%", md: "60%", lg: "50%" });
-  const avatarSize = useBreakpointValue({ base: "sm", md: "md" });
-  const fontSize = useBreakpointValue({ base: "md", md: "lg" });
-  const timeSize = useBreakpointValue({ base: "xs", md: "sm" });
-  const spacing = useBreakpointValue({ base: 2, md: 3 });
 
   return (
-    <Flex sx={messageBubbleStyles.container(isUser, maxWidth)}>
+    <Flex sx={messageBubbleStyles.container(isUser)}>
       {!isUser && (
         <Avatar
-          sx={messageBubbleStyles.avatar(avatarSize, spacing)}
-          src={characterImage}
-          name={messageBubbleProps.characterAvatarName}
+          sx={messageBubbleStyles.avatar}
+          src={characterImage || undefined}
+          name={characterName || messageBubbleProps.characterAvatarName}
         />
       )}
-      <Box sx={messageBubbleStyles.bubble(isUser, maxWidth)}>
-        <Text sx={messageBubbleStyles.messageText(fontSize)}>
+      <Box sx={messageBubbleStyles.bubble(isUser)}>
+        <Text sx={messageBubbleStyles.messageText}>
           {message.content}
         </Text>
-        <Text sx={messageBubbleStyles.timestamp(isUser, timeSize)}>
+        <Text sx={messageBubbleStyles.timestamp(isUser)}>
           {new Date(message.timestamp).toLocaleTimeString([], messageBubbleProps.timeFormat)}
         </Text>
       </Box>
       {isUser && (
-        <Avatar sx={messageBubbleStyles.userAvatar(avatarSize, spacing)} />
+        <Avatar sx={messageBubbleStyles.userAvatar} />
       )}
     </Flex>
   );

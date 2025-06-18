@@ -239,10 +239,10 @@ export const useGame = (storyId: string): UseGameReturn => {
   };
 
   const startDialogue = (characterId: string): void => {
-    console.log('Starting dialogue with:', { storyId, characterId });
+
     
     if (!storyId) {
-      console.error('Story ID is missing');
+      
       toast({
         title: 'Erreur',
         description: 'ID de l\'histoire manquant',
@@ -254,7 +254,7 @@ export const useGame = (storyId: string): UseGameReturn => {
     }
 
     if (!characterId) {
-      console.error('Character ID is missing');
+      
       toast({
         title: 'Erreur',
         description: 'ID du personnage manquant',
@@ -265,10 +265,9 @@ export const useGame = (storyId: string): UseGameReturn => {
       return;
     }
 
-    // Utiliser l'ID de la session pour la navigation
-    const sessionId = gameState?.id || storyId;
-    const dialogueUrl = `/game/${sessionId}/dialogue/${characterId}`;
-    console.log('Navigating to:', dialogueUrl);
+    // Utiliser l'ID de l'histoire pour la navigation (pas l'ID de session)
+    const dialogueUrl = `/game/${storyId}/dialogue/${characterId}`;
+    
     navigate(dialogueUrl);
   };
 
