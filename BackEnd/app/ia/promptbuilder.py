@@ -1,9 +1,8 @@
 class PromptBuilder:
-    def __init__(self, scenario, role, personality, backstory, attributes, revealed_clues, question, history):
+    def __init__(self, scenario, role, personality, attributes, revealed_clues, question, history):
         self.scenario = scenario
         self.role = role
         self.personality = personality
-        self.backstory = backstory
         self.attributes = attributes
         self.revealed_clues = revealed_clues
         self.question = question
@@ -14,15 +13,40 @@ class PromptBuilder:
         clues_text = "\n".join([f"- {desc}" for desc in self.revealed_clues]) if self.revealed_clues else "None"
         history_text = self.history if self.history else ""
 
-        prompt = (
-            f"Scenario:\n{self.scenario}\n\n"
-            f"Character Role: {self.role}\n"
-            f"Personality:\n{self.personality}\n\n"
-            f"Backstory:\n{self.backstory}\n\n"
-            f"Known Attributes:\n{attributes_text}\n\n"
-            f"Clues that can be revealed:\n{clues_text}\n\n"
-            f"Player's question:\n{self.question}\n\n"
-            f"History of the conversation:\n{history_text}\n\n"
-            "Answer as this character would, staying in character and respecting their personality, role, and knowledge."
-        )
-        return prompt
+    prompt = (
+        "### CONTEXTE DE L'ENQUÊTE ###\n"
+        f"{self.scenario}\n\n"
+
+        "### RÔLE DU PERSONNAGE ###\n"
+        f"{self.role}\n\n"
+
+        "### PERSONNALITÉ ###\n"
+        f"{self.personality}\n\n"
+
+        "### BACKSTORY ET INTENTIONS ###\n"
+        f"{self.backstory}\n\n"
+
+        "### CONNAISSANCES DU PERSONNAGE ###\n"
+        f"{attributes_text}\n\n"
+
+        "### INDICES QU'IL PEUT RÉVÉLER SI BIEN INTERROGÉ ###\n"
+        f"{clues_text}\n\n"
+
+        "### HISTORIQUE DE LA CONVERSATION ###\n"
+        f"{history_text}\n\n"
+
+        "### QUESTION POSÉE PAR LE JOUEUR ###\n"
+        f"{self.question}\n\n"
+
+        "### INSTRUCTIONS DE COMPORTEMENT ###\n"
+        "- RÉPONDS UNIQUEMENT EN TANT QUE CE PERSONNAGE, PAR DU DIALOGUE DIRECT.\n"
+        "- Ne décris pas ses gestes, émotions ou comportements.\n"
+        "- RESTE DANS LE RÔLE À TOUT MOMENT.\n"
+        "- S'il est indiqué que le personnage peut mentir dans la backstory, il peut le faire mais SEULEMENT dans ce cas.\n"
+        "- Si le personnage dit la vérité, il doit rester COHÉRENT avec ce qu'il sait.\n"
+        "- PAS d'explication ou de metacommentaires.\n"
+        "- UTILISE LE FRANÇAIS UNIQUEMENT.\n"
+        "- SOIS CRÉDIBLE, FLUIDE ET HUMAIN.\n"
+        "- CRITICAL: Repond avec un json valide seulement."
+    )
+    return prompt

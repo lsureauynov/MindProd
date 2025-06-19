@@ -19,6 +19,7 @@ class NebiLLM:
             max_tokens=512,
             temperature=0.6,
             top_p=0.9,
+            repeat_penalty=1.0,
             extra_body={"top_k": 50},
             messages=[{"role": "user", "content": prompt}]
         )

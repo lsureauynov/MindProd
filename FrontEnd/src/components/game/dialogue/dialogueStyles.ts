@@ -145,17 +145,6 @@ export const dialogueStyles = {
     fontSize: "sm",
     lineHeight: "relaxed",
   },
-  backstoryLabel: {
-    fontSize: "sm",
-    fontWeight: "bold",
-    color: "brand.secondary.300",
-    mb: 2,
-  },
-  backstoryText: {
-    color: "whiteAlpha.900",
-    fontSize: "sm",
-    lineHeight: "relaxed",
-  },
   
   // Zone de chat principale
   chatContainer: {
@@ -312,7 +301,6 @@ export const dialogueProps = {
   inputPlaceholder: "Tapez votre message...",
   emptyStateText: (characterName: string) => `Commencez la conversation avec ${characterName}`,
   personalityLabel: "Personnalité",
-  backstoryLabel: "Dans cette affaire",
   errorMessages: {
     missingParams: "Paramètres manquants pour le dialogue",
     loadError: "Impossible de charger les données du dialogue",

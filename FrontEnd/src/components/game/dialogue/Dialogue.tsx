@@ -374,14 +374,6 @@ const Dialogue: React.FC = () => {
                   {character.personality}
                 </Text>
               </Box>
-              <Box w="full">
-                <Text sx={dialogueStyles.backstoryLabel}>
-                  {dialogueProps.backstoryLabel}
-                </Text>
-                <Text sx={dialogueStyles.backstoryText}>
-                  {character.backstory}
-                </Text>
-              </Box>
             </VStack>
           </Box>
         </Box>
@@ -501,15 +493,6 @@ const Dialogue: React.FC = () => {
                 </Text>
                 <Text color="gray.300" fontSize="sm">
                   {character.personality}
-                </Text>
-              </Box>
-              
-              <Box w="full">
-                <Text fontSize="md" fontWeight="semibold" color="violet.300" mb={2}>
-                  Histoire
-                </Text>
-                <Text color="gray.300" fontSize="sm">
-                  {character.backstory}
                 </Text>
               </Box>
             </VStack>

@@ -49,14 +49,6 @@ export const CharacterCard: React.FC<CharacterCardProps> = ({ character, onTalkC
                 {character.personality}
               </Text>
             </Box>
-            <Box>
-              <Text sx={characterCardStyles.backstoryLabel}>
-                {characterCardProps.labels.backstory}
-              </Text>
-              <Text sx={characterCardStyles.backstoryText}>
-                {character.backstory}
-              </Text>
-            </Box>
           </VStack>
         </Collapse>
 

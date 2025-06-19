@@ -19,7 +19,6 @@ class DialogueEngine:
         scenario = self.case_loader.get_story_scenario()
         role = self.case_loader.get_character_role()
         personality = self.case_loader.get_character_personality()
-        backstory = self.case_loader.get_character_backstory()
         attributes = self.case_loader.get_character_attributes()
         revealed_clues = self.case_loader.get_character_revealed_clues()
 
@@ -29,7 +28,6 @@ class DialogueEngine:
             scenario=scenario,
             role=role,
             personality=personality,
-            backstory=backstory,
             attributes=attributes,
             revealed_clues=revealed_clues,
             history=history,
