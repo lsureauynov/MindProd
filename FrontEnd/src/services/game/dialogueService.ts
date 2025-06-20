@@ -14,10 +14,17 @@ export class DialogueService {
     }
 
     async getDialogueBySession(session: string): Promise<Dialogue[]> {
-        const response = await api.get(`/dialogues/`, {
-        params: { session: session }
-        });
-        return response.data.results;
+        try {
+            const response = await api.get(`/dialogues/`, {
+                params: { session: session }
+            });
+            return response.data?.results || [];
+        } catch (error: any) {
+            if (error.response?.status === 404) {
+                return [];
+            }
+            throw error;
+        }
     }
 
     async getDialogueById(dialogueId: string): Promise<Dialogue> {
@@ -26,37 +33,44 @@ export class DialogueService {
     }
 
     async createDialogue(player_question:string, character:string, player:string, session:string): Promise<Dialogue> {
-        const token = localStorage.getItem('access');
-        
         const response = await api.post(`/dialogues/`, {
             player_question: player_question,
             character: character,
             player: player,
             session: session
-        }, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
         });
         return response.data;
     }
 
     async getDialogueByCharacterSession(characterId: string, session: string): Promise<Dialogue[]> {
-        const response = await api.get(`/dialogues/`, {
-            params: { character: characterId, session: session }
-        });
-        return response.data.results;
+        try {
+            const response = await api.get(`/dialogues/`, {
+                params: { character: characterId, session: session }
+            });
+            return response.data?.results || [];
+        } catch (error: any) {
+            // Si c'est une erreur 404, cela signifie qu'aucun dialogue n'existe encore
+            if (error.response?.status === 404) {
+                return [];
+            }
+            // Pour les autres erreurs, les relancer
+            throw error;
+        }
     }
 
     async getDialogueByCharactersSessionOrderByDate(characterId: string, session: string): Promise<Dialogue[]> {
-        const token = localStorage.getItem('access');
-        
-        const response = await api.get(`/dialogues/`, {
-            params: { character: characterId, session: session, ordering: 'created_at' },
-            headers: {
-                'Authorization': `Bearer ${token}`
+        try {
+            const response = await api.get(`/dialogues/`, {
+                params: { character: characterId, session: session, ordering: 'created_at' }
+            });
+            return response.data?.results || [];
+        } catch (error: any) {
+            // Si c'est une erreur 404, cela signifie qu'aucun dialogue n'existe encore
+            if (error.response?.status === 404) {
+                return [];
             }
-        });
-        return response.data.results;
+            // Pour les autres erreurs, les relancer
+            throw error;
+        }
     }
 }

@@ -13,9 +13,11 @@ class DialogueLoader:
             session=self.session
         ).order_by("created_at")
 
-        history_lines = []
+        history = []
         for dialogue in dialogues:
-            history_lines.append(f"[{self.player.username}] {dialogue.player_question}")
-            history_lines.append(f"[{self.character.name.upper()}] {dialogue.character_answer}")
+            history.append({"role": "user", "content": dialogue.player_question})
+            history.append({"role": "assistant", "content": dialogue.character_answer})
 
-        return "\n".join(history_lines)
+        return history
+
+

@@ -6,6 +6,9 @@ class CaseLoader:
     def get_story_scenario(self):
         return self.story.scenario.scenario
 
+    def get_character_name(self):
+        return self.character.name
+
     def get_character_personality(self):
         return self.character.personality
 
@@ -24,5 +27,7 @@ class CaseLoader:
         from game.models.characters_reveal_clue import CharactersRevealClue
         clues_links = CharactersRevealClue.objects.filter(character=self.character)
         return [link.clue.description for link in clues_links]
+
+
 
 
