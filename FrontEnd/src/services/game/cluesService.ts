@@ -21,10 +21,17 @@ export class CluesService {
     }
 
     async getDiscoveredCluesBySession(session: string): Promise<DiscoveredClue[]> {
-        const response = await api.get(`/discovered_clues/`, {
-            params: { session: session }
-        });
-        return response.data.results.clue;
+        try {
+            const response = await api.get(`/discovered_clues/`, {
+                params: { session: session }
+            });
+            return response.data?.results || [];
+        } catch (error: any) {
+            if (error.response?.status === 404) {
+                return [];
+            }
+            throw error;
+        }
     }
 
     async getClueById(clueId: string): Promise<Clue> {

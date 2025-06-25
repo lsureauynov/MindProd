@@ -63,16 +63,6 @@ export const characterCardStyles = {
     fontSize: "sm",
     color: "whiteAlpha.800",
   },
-  backstoryLabel: {
-    fontSize: "sm",
-    color: "brand.secondary.300",
-    fontWeight: "semibold",
-    mb: 1,
-  },
-  backstoryText: {
-    fontSize: "sm",
-    color: "whiteAlpha.800",
-  },
   talkButton: {
     bgGradient: "linear(to-r, brand.primary.500, brand.secondary.500)",
     color: "white",
@@ -96,7 +86,6 @@ export const characterCardStyles = {
 export const characterCardProps = {
   labels: {
     personality: "Personnalité",
-    backstory: "Dans cette affaire",
   },
   buttonText: (name: string) => `Parler avec ${name}`,
 }; 

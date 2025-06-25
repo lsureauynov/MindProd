@@ -1,7 +1,8 @@
 from ia.caseloader import CaseLoader
 from ia.dialogueloader import DialogueLoader
 from ia.promptbuilder import PromptBuilder
-from ia.nebillm import NebiLLM
+#from ia.nebillm import NebiLLM
+from ia.ollama import Ollama
 
 class DialogueEngine:
 
@@ -12,34 +13,33 @@ class DialogueEngine:
         self.player_question = player_question
         self.case_loader = CaseLoader(character)
         self.dialogue_loader = DialogueLoader(character, player, session)
-        self.nebillm = NebiLLM()
+        self.ollama = Ollama()
 
     def run(self):
 
         scenario = self.case_loader.get_story_scenario()
         role = self.case_loader.get_character_role()
         personality = self.case_loader.get_character_personality()
-        backstory = self.case_loader.get_character_backstory()
         attributes = self.case_loader.get_character_attributes()
         revealed_clues = self.case_loader.get_character_revealed_clues()
-
+        backstory = self.case_loader.get_character_backstory()
+        name = self.case_loader.get_character_name()
         history = self.dialogue_loader.get_dialogue_history_for_prompt()
 
-        prompt = PromptBuilder(
+        prompt_builder  = PromptBuilder(
             scenario=scenario,
             role=role,
+            name=name,
             personality=personality,
-            backstory=backstory,
             attributes=attributes,
             revealed_clues=revealed_clues,
+            backstory=backstory,
             history=history,
-            question=self.player_question
+            question= self.player_question
         )
 
-        prompt = prompt.build()
-
-        answer = self.nebillm.ask(prompt)
+        messages = prompt_builder.build_message_list()
+        answer = self.ollama.ask_ollama(messages)
 
         return answer
-
 

@@ -77,15 +77,15 @@ const GameMenu: React.FC = () => {
   const StatsSection: React.FC = () => (
     <HStack sx={gameMenuStyles.statsContainer}>
       <Box sx={gameMenuStyles.statBox}>
-        <Text sx={gameMenuStyles.statNumber}>{suspects.length}</Text>
+        <Text sx={gameMenuStyles.statNumber}>{suspects?.length || 0}</Text>
         <Text sx={gameMenuStyles.statLabel}>{gameMenuProps.stats.suspects}</Text>
       </Box>
       <Box sx={gameMenuStyles.statBox}>
-        <Text sx={gameMenuStyles.statNumber}>{witnesses.length}</Text>
+        <Text sx={gameMenuStyles.statNumber}>{witnesses?.length || 0}</Text>
         <Text sx={gameMenuStyles.statLabel}>{gameMenuProps.stats.witnesses}</Text>
       </Box>
       <Box sx={gameMenuStyles.statBox}>
-        <Text sx={gameMenuStyles.statNumber}>{clues.length}</Text>
+        <Text sx={gameMenuStyles.statNumber}>{clues?.filter(clue => clue.isDiscovered).length || 0}</Text>
         <Text sx={gameMenuStyles.statLabel}>{gameMenuProps.stats.clues}</Text>
       </Box>
       <Box sx={gameMenuStyles.statBox}>
@@ -137,14 +137,14 @@ const GameMenu: React.FC = () => {
                   {gameMenuProps.sections.suspects}
                 </Heading>
                 
-                {suspects.length === 0 ? (
+                {(suspects || []).length === 0 ? (
                   <EmptyState 
                     icon={FaExclamationTriangle} 
                     message={gameMenuProps.emptyStates.suspects} 
                   />
                 ) : (
-                  <Grid sx={getGridStyle(suspects.length)}>
-                    {suspects.map((suspect) => (
+                  <Grid sx={getGridStyle((suspects || []).length)}>
+                    {(suspects || []).map((suspect) => (
                         <Box key={suspect.id} sx={gameMenuStyles.cardWrapper}>
                           <CharacterCard
                               character={suspect}
@@ -168,14 +168,14 @@ const GameMenu: React.FC = () => {
                   {gameMenuProps.sections.witnesses}
                 </Heading>
                 
-                {witnesses.length === 0 ? (
+                {(witnesses || []).length === 0 ? (
                   <EmptyState 
                     icon={FaExclamationTriangle} 
                     message={gameMenuProps.emptyStates.witnesses} 
                   />
                 ) : (
-                  <Grid sx={getGridStyle(witnesses.length)}>
-                    {witnesses.map((witness) => (
+                  <Grid sx={getGridStyle((witnesses || []).length)}>
+                    {(witnesses || []).map((witness) => (
                         <Box key={witness.id} sx={gameMenuStyles.cardWrapper}>
                           <CharacterCard
                               character={witness}
@@ -199,18 +199,18 @@ const GameMenu: React.FC = () => {
                   {gameMenuProps.sections.clues}
                 </Heading>
                 
-                {clues.length === 0 ? (
+                {(clues || []).filter(clue => clue.isDiscovered).length === 0 ? (
                   <EmptyState 
                     icon={FaExclamationTriangle} 
                     message={gameMenuProps.emptyStates.clues} 
                   />
                 ) : (
-                  <Grid sx={getGridStyle(clues.length)}>
-                    {clues.map((clue) => (
+                  <Grid sx={getGridStyle((clues || []).filter(clue => clue.isDiscovered).length)}>
+                    {(clues || []).filter(clue => clue.isDiscovered).map((clue) => (
                         <Box key={clue.id} sx={gameMenuStyles.cardWrapper}>
                           <ClueCard
                               clue={clue}
-                              isLocked={!gameState?.id || true} // TODO: Implémenter la logique des indices débloqués
+                              isLocked={!clue.isDiscovered}
                               onUnlock={() => unlockClue(clue.id)}
                           />
                         </Box>

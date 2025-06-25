@@ -6,13 +6,18 @@ import { CluesService } from '../services/game/cluesService';
 import { SessionService } from '../services/game/sessionService';
 import { PlayerService } from '../services/game/playerService';
 import { AccusationService } from '../services/game/accusationService';
-import type { Character, Clue, Session } from '../types';
+import type { Character, Clue, Session, DiscoveredClue } from '../types';
+
+// Type étendu pour inclure l'état de découverte
+interface ClueWithDiscoveryStatus extends Clue {
+  isDiscovered: boolean;
+}
 
 interface UseGameReturn {
   gameState: Session | null;
   suspects: Character[];
   witnesses: Character[];
-  clues: Clue[];
+  clues: ClueWithDiscoveryStatus[];
   isLoading: boolean;
   error: Error | null;
   makeAccusation: (suspectId: string) => Promise<boolean>;
@@ -24,7 +29,7 @@ export const useGame = (storyId: string): UseGameReturn => {
   const [gameState, setGameState] = useState<Session | null>(null);
   const [suspects, setSuspects] = useState<Character[]>([]);
   const [witnesses, setWitnesses] = useState<Character[]>([]);
-  const [clues, setClues] = useState<Clue[]>([]);
+  const [clues, setClues] = useState<ClueWithDiscoveryStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -101,15 +106,33 @@ export const useGame = (storyId: string): UseGameReturn => {
       setGameState(session);
 
       // Récupérer les données du jeu en parallèle
-      const [suspectsData, witnessesData, cluesData] = await Promise.all([
+      const [suspectsData, witnessesData, allCluesData, discoveredCluesData] = await Promise.all([
         CharacterService.getInstance().getSuspectsByStory(storyId),
         CharacterService.getInstance().getWitnessesByStory(storyId),
         CluesService.getInstance().getCluesByStories(storyId),
+        CluesService.getInstance().getDiscoveredCluesBySession(session.id)
       ]);
 
-      setSuspects(suspectsData);
-      setWitnesses(witnessesData);
-      setClues(cluesData);
+      // Vérifier et nettoyer les données reçues
+      setSuspects(suspectsData || []);
+      setWitnesses(witnessesData || []);
+      
+      // Créer un Set des IDs des clues découvertes pour une recherche rapide
+      // Gérer le cas où discoveredCluesData est null, undefined ou vide
+      const discoveredClueIds = new Set(
+        (discoveredCluesData || [])
+          .filter(dc => dc && dc.clue) // Filtrer les éléments null/undefined
+          .map(dc => dc.clue)
+      );
+      
+      // Marquer les clues avec leur statut de découverte
+      // Gérer le cas où allCluesData est null ou undefined
+      const cluesWithStatus: ClueWithDiscoveryStatus[] = (allCluesData || []).map(clue => ({
+        ...clue,
+        isDiscovered: discoveredClueIds.has(clue.id)
+      }));
+      
+      setClues(cluesWithStatus);
     } catch (err) {
       const error = err as Error;
       setError(error);

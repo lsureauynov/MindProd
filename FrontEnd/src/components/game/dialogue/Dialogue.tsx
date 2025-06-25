@@ -24,6 +24,7 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { ArrowBackIcon, ArrowForwardIcon, InfoIcon, ViewIcon } from '@chakra-ui/icons';
+import { useAuth } from '../../../contexts/AuthContext';
 import { CharacterService } from '../../../services/game/characterService';
 import { CluesService } from '../../../services/game/cluesService';
 import { SessionService } from '../../../services/game/sessionService';
@@ -41,6 +42,8 @@ const Dialogue: React.FC = () => {
   const { id: storyId, characterId } = useParams<{ id: string; characterId: string }>();
   const navigate = useNavigate();
   const toast = useToast();
+  const { isAuthenticated } = useAuth();
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -98,6 +101,19 @@ const Dialogue: React.FC = () => {
       return;
     }
 
+    // Vérifier l'authentification via le contexte
+    if (!isAuthenticated) {
+      toast({
+        title: "Erreur d'authentification",
+        description: "Vous devez être connecté pour accéder aux dialogues.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate('/login');
+      return;
+    }
+
     const token = localStorage.getItem('access');
     if (!token) {
       toast({
@@ -110,7 +126,7 @@ const Dialogue: React.FC = () => {
       navigate('/login');
       return;
     }
-  }, [storyId, characterId, navigate, toast]);
+  }, [storyId, characterId, navigate, toast, isAuthenticated]);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -160,7 +176,7 @@ const Dialogue: React.FC = () => {
         const dialogueMessages = convertDialoguesToMessages(dialogues);
         setMessages(dialogueMessages);
         
-      } catch (err) {
+      } catch (err: any) {
         setError("Erreur lors du chargement des données");
         toast({
           title: "Erreur",
@@ -374,14 +390,6 @@ const Dialogue: React.FC = () => {
                   {character.personality}
                 </Text>
               </Box>
-              <Box w="full">
-                <Text sx={dialogueStyles.backstoryLabel}>
-                  {dialogueProps.backstoryLabel}
-                </Text>
-                <Text sx={dialogueStyles.backstoryText}>
-                  {character.backstory}
-                </Text>
-              </Box>
             </VStack>
           </Box>
         </Box>
@@ -501,15 +509,6 @@ const Dialogue: React.FC = () => {
                 </Text>
                 <Text color="gray.300" fontSize="sm">
                   {character.personality}
-                </Text>
-              </Box>
-              
-              <Box w="full">
-                <Text fontSize="md" fontWeight="semibold" color="violet.300" mb={2}>
-                  Histoire
-                </Text>
-                <Text color="gray.300" fontSize="sm">
-                  {character.backstory}
                 </Text>
               </Box>
             </VStack>
