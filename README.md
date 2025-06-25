@@ -111,6 +111,13 @@ docker exec -it mindprod_api sh
 python manage.py createsuperuser
 ```
 
+Enfin, il faut lancer un server Ollama avec le modèle choisie. 
+Si on veut executer ollama sur une autre machine que celle contenant les docker, assurer que les deux machines ont un bridge et exécuter les commandes suivantes sur cmd de Windows: 
+```
+set OLLAMA_HOST=0.0.0.0
+ollama serve
+```
+
 ## 🎮 Fonctionnalités du Jeu
 
 - **Système d'Enquête**
