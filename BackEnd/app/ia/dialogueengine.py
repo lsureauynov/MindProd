@@ -3,6 +3,7 @@ from ia.dialogueloader import DialogueLoader
 from ia.promptbuilder import PromptBuilder
 #from ia.nebillm import NebiLLM
 from ia.ollama import Ollama
+from ia.clues_reveal import CluesReveal
 
 class DialogueEngine:
 
@@ -39,7 +40,12 @@ class DialogueEngine:
         )
 
         messages = prompt_builder.build_message_list()
-        answer = self.ollama.ask_ollama(messages)
+        raw_answer = self.ollama.ask_ollama(messages)
 
-        return answer
+        cleaned_answer = CluesReveal.process_ia_reveal_clue_from_text(
+            response_text=raw_answer,
+            player=self.player,
+            session=self.session
+        )
 
+        return cleaned_answer

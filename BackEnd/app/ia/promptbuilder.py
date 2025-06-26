@@ -14,9 +14,13 @@ class PromptBuilder:
 
     def build_system_prompt(self):
         attributes_text = "\n".join([f"- {name}: {desc}" for name, desc in self.attributes]) if self.attributes else "None"
-        clues_text = "\n".join([f"- {desc}" for desc in self.revealed_clues]) if self.revealed_clues else "None"
+        clues_text = "\n".join([
+            f"- id: {clue['id']}, description: {clue['description']}"
+            for clue in self.revealed_clues
+        ]) if self.revealed_clues else "None"
 
         return (
+
             "[INSTRUCTIONS DE COMPORTEMENT]\n"
             "- Tu incarnes le rôle d'un personnage dans une enquête policière.\n"
             "Tu es interrogé par un enquêteur et tu dois UNIQUEMENT répondre à ses questions.\n"
@@ -31,9 +35,29 @@ class PromptBuilder:
             "- Réponds en FRANÇAIS uniquement.\n"
             "- SOIS NATUREL, ET HUMAIN. \n"
             "- Ne parle JAMAIS du fait que tu es une IA.\n"
-            "- Réponds toujours en trois phrases maximum. \n"
-            "- Réponds toujours à la première personne du singulier. \n\n"
+            "- Réponds toujours en cinq phrases maximum. \n"
+            "- Réponds toujours à la première personne du singulier. \n"
+            "- Chaque indice est associé à une ou plusieurs **conditions**. \n"
+            "- Si la question de l’enquêteur correspond à une **condition** d’un indice, alors tu dois OBLIGATOIREMENT l'intégralité révéler cet indice. \n"
+            "- Révéler un indice signifie remplir le champ 'indice_revele' avec l'identifiant correspondant, et répondre naturellement en intégrant cet indice dans ta réponse. \n"
+            "- Tu ne peux révéler qu’un seul indice par réponse.\n"
+            "- Si aucune condition n’est remplie, le champ 'indice_revele' doit être `null`.\n"
+            
+            "\n[EXEMPLE DE COMPORTEMENT ATTENDU]\n"
+            "Voici un indice disponible :\n"
+            "- id: \"b2d5ffc5-6127-452c-839c-a1da4f6f0eda\"\n"
+            "- description: \"Un camion blanc est resté stationné anormalement longtemps dans la rue.\"\n"
+            "- conditions: [\"Le joueur parle d’un véhicule suspect\", \"Le joueur demande qui était présent dans la rue\"]\n\n"
 
+            "Si l'enquêteur pose la question : « Avez-vous vu quelque chose d’inhabituel dans la rue ce soir-là ? »,\n"
+            "alors tu dois répondre par exemple :\n"
+            "« Il y avait un camion blanc qui ne bougeait pas. C’était étrange. [indice_revele: indice_camion_stationne] »\n"
+
+            "[FORMAT DE RÉPONSE]\n"
+            "- Si tu révèles un indice, insère-le dans la réponse entre crochets comme ceci : [indice_revele: id_de_l_indice]\n"
+            "- Exemple : « Je l’ai vu quitter la maison en courant. [indice_revele: 6b6a0f77-604f-4659-91b7-568c9585b36a] »\n"
+            "- S’il n’y a pas d’indice à révéler, ne mets rien.\n\n"
+            
             "[CONTEXTE DE L'ENQUÊTE]\n"
             f"{self.scenario}\n\n"
 
@@ -54,6 +78,7 @@ class PromptBuilder:
 
             "[INDICES QU'IL PEUT RÉVÉLER SI BIEN INTERROGÉ]\n"
             f"{clues_text}\n"
+
         )
 
     def format_history(self):
