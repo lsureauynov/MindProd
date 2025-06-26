@@ -1,5 +1,5 @@
 import api from '../api';
-import type { Clue, DiscoveredClue } from '../../types';
+import type { Clue, DiscoveredClue, EnrichedDiscoveredClue } from '../../types';
 
 export class CluesService {
     private static instance: CluesService;
@@ -20,12 +20,24 @@ export class CluesService {
         return response.data.results;
     }
 
-    async getDiscoveredCluesBySession(session: string): Promise<DiscoveredClue[]> {
+    async getDiscoveredCluesBySession(session: string): Promise<EnrichedDiscoveredClue[]> {
         try {
-            const response = await api.get(`/discovered_clues/`, {
+            const response = await api.get(`/discovered-clues/`, {
                 params: { session: session }
             });
-            return response.data?.results || [];
+            const discoveredClues = response.data?.results || [];
+            
+            const enrichedClues = await Promise.all(
+                discoveredClues.map(async (discoveredClue: DiscoveredClue) => {
+                    const clueDetails = await this.getClueById(discoveredClue.clue);
+                    return {
+                        ...discoveredClue,
+                        clue: clueDetails
+                    };
+                })
+            );
+            
+            return enrichedClues;
         } catch (error: any) {
             if (error.response?.status === 404) {
                 return [];
@@ -38,7 +50,5 @@ export class CluesService {
         const response = await api.get(`/clues/${clueId}`);
         return response.data;
     }
-
-
 
 }

@@ -30,6 +30,8 @@ export const SuspectCard: React.FC<SuspectCardProps> = ({
       position="relative"
       transition="all 0.3s"
       opacity={isDisabled ? 0.6 : 1}
+      maxW="200px"
+      w="100%"
       _hover={!isDisabled ? {
         transform: 'translateY(-4px)',
         shadow: '2xl',
@@ -50,7 +52,7 @@ export const SuspectCard: React.FC<SuspectCardProps> = ({
       <Image
         src={suspect.image_url}
         alt={suspect.name}
-        height="200px"
+        height="150px"
         width="100%"
         objectFit="cover"
         transition="transform 0.3s"

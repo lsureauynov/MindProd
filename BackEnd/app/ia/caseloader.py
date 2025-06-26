@@ -30,6 +30,7 @@ class CaseLoader:
             {"id": str(link.id), "description": link.clue.description, "conditions": link.conditions if link.conditions else None}
             for link in clues_links
         ]
+    
 
 
 

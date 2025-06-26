@@ -1,4 +1,4 @@
-import api, { checkAuthStatus } from '../api';
+import api from '../api';
 import type { Session } from '../../types';
 
 export class SessionService {

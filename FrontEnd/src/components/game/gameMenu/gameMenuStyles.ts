@@ -106,9 +106,10 @@ export const gameMenuStyles = {
   },
   // Grilles adaptatives basées sur le nombre d'éléments
   gridBase: {
-    gap: 6,
+    gap: { base: 4, md: 6 },
     justifyItems: "center",
     alignItems: "start",
+    w: "100%",
   },
   // Pour 1 élément
   grid1: {
@@ -118,13 +119,17 @@ export const gameMenuStyles = {
   },
   // Pour 2 éléments
   grid2: {
-    templateColumns: { base: '1fr', md: 'repeat(2, 1fr)' },
+    templateColumns: { base: '1fr', sm: 'repeat(2, 1fr)' },
     maxW: "800px",
     mx: "auto",
   },
   // Pour 3 éléments
   grid3: {
-    templateColumns: { base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' },
+    templateColumns: { 
+      base: '1fr', 
+      sm: 'repeat(2, 1fr)', 
+      md: 'repeat(3, 1fr)' 
+    },
   },
   // Pour 4+ éléments
   grid4Plus: {
@@ -139,7 +144,8 @@ export const gameMenuStyles = {
   // Styles pour les cartes
   cardWrapper: {
     w: "100%",
-    maxW: "350px",
+    maxW: { base: "100%", sm: "320px", md: "300px" },
+    minW: { sm: "250px" },
     transition: "all 0.3s",
     _hover: {
       transform: "translateY(-4px)",

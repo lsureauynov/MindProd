@@ -6,7 +6,7 @@ import { CluesService } from '../services/game/cluesService';
 import { SessionService } from '../services/game/sessionService';
 import { PlayerService } from '../services/game/playerService';
 import { AccusationService } from '../services/game/accusationService';
-import type { Character, Clue, Session, DiscoveredClue } from '../types';
+import type { Character, Clue, Session } from '../types';
 
 // Type étendu pour inclure l'état de découverte
 interface ClueWithDiscoveryStatus extends Clue {
@@ -122,7 +122,7 @@ export const useGame = (storyId: string): UseGameReturn => {
       const discoveredClueIds = new Set(
         (discoveredCluesData || [])
           .filter(dc => dc && dc.clue) // Filtrer les éléments null/undefined
-          .map(dc => dc.clue)
+          .map(dc => dc.clue.id) // Maintenant dc.clue est un objet, on accède à son id
       );
       
       // Marquer les clues avec leur statut de découverte

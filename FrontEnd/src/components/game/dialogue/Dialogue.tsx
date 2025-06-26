@@ -35,7 +35,7 @@ import type { Clue } from '../gameMenu/gameMenuTypes';
 import type { Dialogue, Session, Player, Character } from '../../../types';
 import { MessageBubble } from './components/MessageBubble';
 import { CluesList } from './components/CluesList';
-import type {DiscoveredClue} from "../gameMenu/gameMenuTypes";
+import type { EnrichedDiscoveredClue } from "../../../types";
 import { dialogueStyles, dialogueProps } from './dialogueStyles';
 
 const Dialogue: React.FC = () => {
@@ -55,7 +55,7 @@ const Dialogue: React.FC = () => {
   const [clues, setClues] = useState<Clue[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [discoveredClues] = useState<DiscoveredClue[]>([]);
+  const [discoveredClues, setDiscoveredClues] = useState<EnrichedDiscoveredClue[]>([]);
   const [imageError, setImageError] = useState(false);
   const [currentSession, setCurrentSession] = useState<Session | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
@@ -171,6 +171,10 @@ const Dialogue: React.FC = () => {
         
         const cluesData = await CluesService.getInstance().getCluesByStories(storyId);
         setClues(cluesData);
+        
+        // Récupérer les indices découverts pour cette session
+        const discoveredCluesData = await CluesService.getInstance().getDiscoveredCluesBySession(session.id);
+        setDiscoveredClues(discoveredCluesData);
         
         const dialogues = await DialogueService.getInstance().getDialogueByCharactersSessionOrderByDate(characterId, session.id);
         const dialogueMessages = convertDialoguesToMessages(dialogues);

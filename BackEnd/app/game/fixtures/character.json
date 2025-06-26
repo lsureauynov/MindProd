@@ -6,7 +6,7 @@
       "name": "Inspecteur Lefèvre",
       "role_id": "suspect",
       "image_url": "https://example.com/lefevre.jpg",
-      "is_guilty": false,
+      "is_guilty": true,
       "personality": "Curieux et méthodique",
       "backstory": "Inspecteur de police, Lefèvre est connu pour sa perspicacité et son attention aux détails. Il a résolu de nombreuses affaires complexes.",
       "story": 1

@@ -4,7 +4,6 @@ import {
   Heading,
   Text,
   Button,
-  Image,
 } from '@chakra-ui/react';
 import { LockIcon, UnlockIcon } from '@chakra-ui/icons';
 import { clueCardStyles, clueCardProps } from './clueCardStyles';
@@ -19,13 +18,6 @@ export interface ClueCardProps {
 export const ClueCard: React.FC<ClueCardProps> = ({ clue, isLocked, onUnlock }) => {
   return (
       <Box sx={clueCardStyles.container}>
-        {!isLocked && (
-            <Image
-                src={clue.image_url}
-                alt={clue.name}
-                sx={clueCardStyles.image}
-            />
-        )}
         <VStack sx={clueCardStyles.contentStack}>
           <Heading sx={clueCardStyles.title}>
             {clue.name}
