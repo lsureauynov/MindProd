@@ -28,7 +28,13 @@ class Ollama:
         payload = {
             'model': self.model,
             'messages': messages,
-            'stream': False
+            'stream': False,
+            'options': {
+                'temperature': 0.8,
+                'top_p': 0.9,
+                'repeat_penalty': 1.18,
+                'repeat_last_n': 64,
+            }
         }
 
         response = requests.post(self.api_url, headers=headers, json=payload, stream=True)

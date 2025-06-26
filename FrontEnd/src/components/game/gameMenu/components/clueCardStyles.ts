@@ -20,14 +20,14 @@ export const clueCardStyles = {
     h: "150px",
   },
   contentStack: {
-    spacing: 4,
+    spacing: 3,
     align: "stretch" as const,
-    p: 6,
+    p: 4,
     position: "relative" as const,
     zIndex: 2,
   },
   title: {
-    size: "md",
+    fontSize: "xs",
     isTruncated: true,
     color: "whiteAlpha.900",
     fontFamily: "heading",
@@ -46,9 +46,11 @@ export const clueCardStyles = {
     },
   },
   description: {
-    fontSize: "sm",
+    fontSize: "xs",
     color: "whiteAlpha.800",
     fontFamily: "body",
+    lineHeight: "1.4",
+    textAlign: "left" as const,
   },
   unlockedIcon: {
     color: "brand.accent.400",

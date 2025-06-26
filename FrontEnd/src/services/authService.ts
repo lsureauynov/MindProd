@@ -1,5 +1,4 @@
 import { isAxiosError } from 'axios';
-import { APP_CONFIG } from '../config/constants';
 import api from './api';
 import type {AuthTokens, LoginCredentials, RegisterCredentials, UserProfile} from './userTypes.ts';
 

@@ -26,7 +26,15 @@ class CaseLoader:
     def get_character_revealed_clues(self):
         from game.models.characters_reveal_clue import CharactersRevealClue
         clues_links = CharactersRevealClue.objects.filter(character=self.character)
-        return [link.clue.description for link in clues_links]
+        return [
+            {"id": str(link.id), "description": link.clue.description, "conditions": link.conditions if link.conditions else None}
+            for link in clues_links
+        ]
+    
+
+
+
+
 
 
 

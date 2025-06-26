@@ -158,7 +158,9 @@ export const dialogueStyles = {
   messagesContainer: {
     flex: 1,
     overflowY: "auto" as const,
-    p: 4,
+    pl: 3,
+    pr: 0,
+    py: 3,
     bg: "gray.900",
   },
   scrollbarStyles: {
@@ -177,8 +179,9 @@ export const dialogueStyles = {
     },
   },
   messagesStack: {
-    spacing: 4,
+    spacing: 0,
     align: "stretch" as const,
+    w: "100%",
   },
   emptyState: {
     textAlign: "center" as const,

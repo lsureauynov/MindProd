@@ -86,3 +86,8 @@ export interface Accusation extends BaseEntity {
     created_at: string;
     is_correct: boolean;
 }
+
+// Type enrichi pour les clues découvertes avec les informations complètes de la clue
+export interface EnrichedDiscoveredClue extends Omit<DiscoveredClue, 'clue'> {
+    clue: Clue;
+}

@@ -143,7 +143,16 @@ const GameMenu: React.FC = () => {
                     message={gameMenuProps.emptyStates.suspects} 
                   />
                 ) : (
-                  <Grid sx={getGridStyle((suspects || []).length)}>
+                  <Grid 
+                    sx={getGridStyle((suspects || []).length)}
+                    templateColumns={{ 
+                      base: '1fr', 
+                      sm: (suspects || []).length >= 2 ? 'repeat(2, 1fr)' : '1fr',
+                      md: (suspects || []).length >= 3 ? 'repeat(3, 1fr)' : (suspects || []).length >= 2 ? 'repeat(2, 1fr)' : '1fr',
+                      lg: (suspects || []).length >= 4 ? 'repeat(4, 1fr)' : (suspects || []).length >= 3 ? 'repeat(3, 1fr)' : (suspects || []).length >= 2 ? 'repeat(2, 1fr)' : '1fr'
+                    }}
+                    gap={6}
+                  >
                     {(suspects || []).map((suspect) => (
                         <Box key={suspect.id} sx={gameMenuStyles.cardWrapper}>
                           <CharacterCard
@@ -174,7 +183,16 @@ const GameMenu: React.FC = () => {
                     message={gameMenuProps.emptyStates.witnesses} 
                   />
                 ) : (
-                  <Grid sx={getGridStyle((witnesses || []).length)}>
+                  <Grid 
+                    sx={getGridStyle((witnesses || []).length)}
+                    templateColumns={{ 
+                      base: '1fr', 
+                      sm: (witnesses || []).length >= 2 ? 'repeat(2, 1fr)' : '1fr',
+                      md: (witnesses || []).length >= 3 ? 'repeat(3, 1fr)' : (witnesses || []).length >= 2 ? 'repeat(2, 1fr)' : '1fr',
+                      lg: (witnesses || []).length >= 4 ? 'repeat(4, 1fr)' : (witnesses || []).length >= 3 ? 'repeat(3, 1fr)' : (witnesses || []).length >= 2 ? 'repeat(2, 1fr)' : '1fr'
+                    }}
+                    gap={6}
+                  >
                     {(witnesses || []).map((witness) => (
                         <Box key={witness.id} sx={gameMenuStyles.cardWrapper}>
                           <CharacterCard
@@ -205,7 +223,16 @@ const GameMenu: React.FC = () => {
                     message={gameMenuProps.emptyStates.clues} 
                   />
                 ) : (
-                  <Grid sx={getGridStyle((clues || []).filter(clue => clue.isDiscovered).length)}>
+                  <Grid 
+                    sx={getGridStyle((clues || []).filter(clue => clue.isDiscovered).length)}
+                    templateColumns={{ 
+                      base: '1fr', 
+                      sm: (clues || []).filter(clue => clue.isDiscovered).length >= 2 ? 'repeat(2, 1fr)' : '1fr',
+                      md: (clues || []).filter(clue => clue.isDiscovered).length >= 3 ? 'repeat(3, 1fr)' : (clues || []).filter(clue => clue.isDiscovered).length >= 2 ? 'repeat(2, 1fr)' : '1fr',
+                      lg: (clues || []).filter(clue => clue.isDiscovered).length >= 4 ? 'repeat(4, 1fr)' : (clues || []).filter(clue => clue.isDiscovered).length >= 3 ? 'repeat(3, 1fr)' : (clues || []).filter(clue => clue.isDiscovered).length >= 2 ? 'repeat(2, 1fr)' : '1fr'
+                    }}
+                    gap={6}
+                  >
                     {(clues || []).filter(clue => clue.isDiscovered).map((clue) => (
                         <Box key={clue.id} sx={gameMenuStyles.cardWrapper}>
                           <ClueCard

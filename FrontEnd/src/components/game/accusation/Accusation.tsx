@@ -6,7 +6,7 @@ import {
   Heading,
   Text,
   Button,
-  SimpleGrid,
+  Flex,
   Spinner,
   Alert,
   AlertIcon,
@@ -115,7 +115,14 @@ const Accusation: React.FC<AccusationProps> = ({
               </Alert>
             )}
 
-            <SimpleGrid sx={accusationStyles.suspectsGrid}>
+            <Flex
+              wrap="wrap"
+              justify="center"
+              align="flex-start"
+              gap={4}
+              w="100%"
+              pt={4}
+            >
               {suspects.map((suspect) => (
                   <SuspectCard
                       key={suspect.id}
@@ -125,7 +132,7 @@ const Accusation: React.FC<AccusationProps> = ({
                       isDisabled={isAccusing}
                   />
               ))}
-            </SimpleGrid>
+            </Flex>
 
             <Box sx={accusationStyles.buttonContainer}>
               <Button

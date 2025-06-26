@@ -18,12 +18,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, character
 
   return (
     <Flex sx={messageBubbleStyles.container(isUser)}>
-      {!isUser && (
-        <Avatar
-          sx={messageBubbleStyles.avatar}
-          src={characterImage || undefined}
-          name={characterName || messageBubbleProps.characterAvatarName}
-        />
+      {isUser && (
+        <Avatar sx={messageBubbleStyles.userAvatar} />
       )}
       <Box sx={messageBubbleStyles.bubble(isUser)}>
         <Text sx={messageBubbleStyles.messageText}>
@@ -33,8 +29,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, character
           {new Date(message.timestamp).toLocaleTimeString([], messageBubbleProps.timeFormat)}
         </Text>
       </Box>
-      {isUser && (
-        <Avatar sx={messageBubbleStyles.userAvatar} />
+      {!isUser && (
+        <Avatar
+          sx={messageBubbleStyles.avatar}
+          src={characterImage || undefined}
+          name={characterName || messageBubbleProps.characterAvatarName}
+        />
       )}
     </Flex>
   );

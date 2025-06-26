@@ -94,9 +94,9 @@ const AccusationWrapper: React.FC = () => {
           // Continuer même si la finalisation échoue
         }
         
-        // Retourner au menu après un délai pour laisser le temps de lire le message
+        // Retourner à la page d'accueil après un délai pour laisser le temps de lire le message
         setTimeout(() => {
-          navigate(`/game/${id}`);
+          navigate('/');
         }, 3000);
         
       } else {
@@ -114,9 +114,9 @@ const AccusationWrapper: React.FC = () => {
               isClosable: true
             });
             
-            // Retourner au menu après un délai
+            // Retourner à la page d'accueil après un délai
             setTimeout(() => {
-              navigate(`/game/${id}`);
+              navigate('/');
             }, 3000);
             
           } else {

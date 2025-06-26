@@ -31,9 +31,10 @@ export const accusationStyles = {
     fontFamily: "body",
   },
   suspectsGrid: {
-    columns: { base: 1, sm: 2, md: 3 },
-    spacing: { base: 6, md: 8 },
+    columns: { base: 2, sm: 3, md: 4, lg: 5, xl: 6 },
+    spacing: { base: 3, md: 4 },
     pt: 4,
+    w: "100%",
   },
   buttonContainer: {
     textAlign: "center" as const,
