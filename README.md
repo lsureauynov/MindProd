@@ -98,7 +98,7 @@ docker exec -it mindprod_api python manage.py makemigrations
 docker exec -it mindprod_api python manage.py migrate
 ```
 
-Itiliser un dump de la base de données présent dans BackEnd/data_dump.sql
+Itiliser un dump de la base de données présent dans BackEnd/data_dump.sql (vous pouvez utilisé pgadmin dans queryTools > File > open puis Executer)
 
 Pour créer un superUser :
 ```bash
@@ -106,6 +106,8 @@ cd BackEnd
 docker exec -it mindprod_api sh
 python manage.py createsuperuser
 ```
+
+Il existe déjà un superuser test : superuser@example.com ; password
 
 Enfin, il faut lancer un server Ollama avec le modèle choisie. 
 Si on veut executer ollama sur une autre machine que celle contenant les docker, assurer que les deux machines ont un bridge et exécuter les commandes suivantes sur cmd de Windows: 
