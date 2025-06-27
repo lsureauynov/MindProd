@@ -7,9 +7,9 @@ export interface UserProfile {
 }
 
 export interface UserStats {
-    storiesPlayed: number;
-    storiesCompleted: number;
-    accuracy: number;
+    started: number;
+    finished: number;
+    survivals: number;
 }
 
 export type LoginCredentials = {

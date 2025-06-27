@@ -101,7 +101,6 @@ const Dialogue: React.FC = () => {
       return;
     }
 
-    // Vérifier l'authentification via le contexte
     if (!isAuthenticated) {
       toast({
         title: "Erreur d'authentification",
@@ -172,7 +171,6 @@ const Dialogue: React.FC = () => {
         const cluesData = await CluesService.getInstance().getCluesByStories(storyId);
         setClues(cluesData);
         
-        // Récupérer les indices découverts pour cette session
         const discoveredCluesData = await CluesService.getInstance().getDiscoveredCluesBySession(session.id);
         setDiscoveredClues(discoveredCluesData);
         

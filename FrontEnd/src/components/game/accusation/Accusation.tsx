@@ -30,7 +30,6 @@ const Accusation: React.FC<AccusationProps> = ({
     message: string;
   } | null>(null);
 
-  // Réinitialiser l'état de chargement au démontage du composant
   useEffect(() => {
     return () => {
       setIsAccusing(false);
@@ -48,7 +47,6 @@ const Accusation: React.FC<AccusationProps> = ({
       setIsAccusing(true);
       setAccusationResult(null);
       
-      // Timeout de sécurité pour éviter le blocage infini
       const timeoutId = setTimeout(() => {
         setIsAccusing(false);
         setAccusationResult({
@@ -60,16 +58,13 @@ const Accusation: React.FC<AccusationProps> = ({
       try {
         await onAccuse(selectedSuspect.id);
         
-        // Annuler le timeout si l'accusation réussit
         clearTimeout(timeoutId);
         
-        // Réinitialiser l'état après un court délai pour permettre la navigation
         setTimeout(() => {
           setIsAccusing(false);
         }, 1000);
         
       } catch (error) {
-        // Annuler le timeout en cas d'erreur
         clearTimeout(timeoutId);
         
         setAccusationResult({
@@ -77,7 +72,6 @@ const Accusation: React.FC<AccusationProps> = ({
           message: 'Une erreur est survenue lors de l\'accusation.'
         });
         
-        // Réinitialiser l'état de chargement en cas d'erreur
         setIsAccusing(false);
       }
     }

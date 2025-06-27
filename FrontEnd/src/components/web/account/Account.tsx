@@ -50,7 +50,7 @@ const AccountPage = () => {
                 }));
                 setStats(userStats);
             })
-            .catch(() => {
+            .catch((error) => {
                 toast({
                     title: 'Erreur lors du chargement des données.',
                     status: 'error',
@@ -152,11 +152,17 @@ const AccountPage = () => {
                         onToggleEdit={() => setIsEditing(true)}
                     />
 
-                    {stats && (
+                    {stats ? (
                         <AccountStats
-                            storiesPlayed={stats.storiesPlayed}
-                            storiesCompleted={stats.storiesCompleted}
-                            accuracy={stats.accuracy}
+                            started={stats.started}
+                            finished={stats.finished}
+                            survivals={stats.survivals}
+                        />
+                    ) : (
+                        <AccountStats
+                            started={0}
+                            finished={0}
+                            survivals={0}
                         />
                     )}
 

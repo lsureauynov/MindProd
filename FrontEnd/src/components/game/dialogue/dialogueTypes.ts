@@ -14,8 +14,5 @@ export interface DialogueCharacter {
   story: string;
 }
 
-export interface DialogueState {
-  messages: Message[];
-  character: DialogueCharacter;
-}
+
 

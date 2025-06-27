@@ -24,14 +24,11 @@ const AccusationWrapper: React.FC = () => {
       try {
         setLoading(true);
         
-        // Récupérer le joueur actuel
         const currentPlayer = await PlayerService.getInstance().getCurrentPlayer();
         
-        // Chercher la session existante pour cette histoire et ce joueur
         let session = await SessionService.getInstance().findSessionByStoryAndPlayer(id, currentPlayer.id);
         
         if (!session) {
-          // Si aucune session n'existe, rediriger vers le menu du jeu
           toast({
             title: "Erreur",
             description: "Aucune session de jeu trouvée. Retour au menu.",
@@ -45,7 +42,6 @@ const AccusationWrapper: React.FC = () => {
         
         setSessionId(session.id);
         
-        // Récupérer les suspects pour cette histoire
         const suspectsData = await CharacterService.getInstance().getSuspectsByStory(id);
         setSuspects(suspectsData);
       } catch (err) {
@@ -78,7 +74,6 @@ const AccusationWrapper: React.FC = () => {
       const accusation = await AccusationService.getInstance().createAccusation(sessionId, suspectId);
       
       if (accusation.is_correct) {
-        // Accusation réussie
         toast({
           title: "Félicitations !",
           description: "Vous avez trouvé le coupable ! L'enquête est terminée.",
@@ -87,20 +82,17 @@ const AccusationWrapper: React.FC = () => {
           isClosable: true
         });
         
-        // Marquer la session comme terminée
         try {
           await SessionService.getInstance().updateSessionToStatusFinished(sessionId);
         } catch (finishError) {
           // Continuer même si la finalisation échoue
         }
         
-        // Retourner à la page d'accueil après un délai pour laisser le temps de lire le message
         setTimeout(() => {
           navigate('/');
         }, 3000);
         
       } else {
-        // Accusation échouée - faire perdre une vie
         try {
           const updatedSession = await SessionService.getInstance().loseLife(sessionId);
           
@@ -114,13 +106,11 @@ const AccusationWrapper: React.FC = () => {
               isClosable: true
             });
             
-            // Retourner à la page d'accueil après un délai
             setTimeout(() => {
               navigate('/');
             }, 3000);
             
           } else {
-            // Il reste des vies
             toast({
               title: "Mauvaise accusation",
               description: `Ce n'est pas le bon suspect. Il vous reste ${updatedSession.remaining_lives} vie(s).`,
@@ -129,14 +119,12 @@ const AccusationWrapper: React.FC = () => {
               isClosable: true
             });
             
-            // Retourner au menu pour continuer l'enquête
             setTimeout(() => {
               navigate(`/game/${id}`);
             }, 2000);
           }
           
         } catch (lifeError) {
-          // Fallback: afficher un message générique et retourner au menu
           toast({
             title: "Mauvaise accusation",
             description: "Ce n'est pas le bon suspect. Continuez à chercher !",

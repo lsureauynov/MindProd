@@ -1,8 +1,8 @@
 import { Stat, StatLabel, StatNumber, SimpleGrid, StatGroup } from '@chakra-ui/react';
 import { accountStatsStyles, accountStatsProps } from './accountStatsStyles';
-import type { Stats } from '../accountTypes.ts'
+import type { UserStats } from '../../../../services/userTypes.ts'
 
-const AccountStats = ({ storiesPlayed, storiesCompleted, accuracy } : Stats) => (
+const AccountStats = ({ started, finished, survivals } : UserStats) => (
     <StatGroup sx={accountStatsStyles.container}>
         <SimpleGrid 
             columns={accountStatsProps.grid.columns} 
@@ -12,19 +12,19 @@ const AccountStats = ({ storiesPlayed, storiesCompleted, accuracy } : Stats) => 
             <Stat>
                 <StatLabel sx={accountStatsStyles.statLabel}>Histoires jouées</StatLabel>
                 <StatNumber sx={{ ...accountStatsStyles.statNumber, ...accountStatsStyles.storiesPlayedNumber }}>
-                    {storiesPlayed}
+                    {started}
                 </StatNumber>
             </Stat>
             <Stat>
                 <StatLabel sx={accountStatsStyles.statLabel}>Histoires complétées</StatLabel>
                 <StatNumber sx={{ ...accountStatsStyles.statNumber, ...accountStatsStyles.storiesCompletedNumber }}>
-                    {storiesCompleted}
+                    {finished}
                 </StatNumber>
             </Stat>
             <Stat>
                 <StatLabel sx={accountStatsStyles.statLabel}>Taux de réussite</StatLabel>
                 <StatNumber sx={{ ...accountStatsStyles.statNumber, ...accountStatsStyles.accuracyNumber }}>
-                    {accuracy}%
+                    {survivals}%
                 </StatNumber>
             </Stat>
         </SimpleGrid>

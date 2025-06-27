@@ -29,12 +29,6 @@ export interface AccountHeaderProps {
     onEditAvatar: () => void;
 }
 
-export interface Stats {
-    storiesPlayed: number;
-    storiesCompleted: number;
-    accuracy: number;
-}
-
 export interface DeleteAccountDialogProps {
     isOpen: boolean;
     onClose: () => void;

@@ -11,7 +11,6 @@ MindProd est une application web moderne qui combine l'intelligence artificielle
 - Base de données PostgreSQL pour la persistance des données
 - Architecture microservices avec Docker
 - Interface utilisateur construite avec Chakra UI
-- Animations fluides avec Framer Motion
 
 ## 🏗️ Architecture du Projet
 
@@ -64,7 +63,10 @@ DB_PASSWORD=your_db_password
 DB_HOST=localhost
 DB_PORT=5432
 SECRET_KEY=your_secret_key
-
+PGADMIN_DEFAULT_EMAIL=pg_admin_email
+PGADMIN_DEFAULT_PASSWORD=pg_admin_password
+OLLAMA_MODEL_NAME=model_ollama
+OLLAMA_URL = "http://<IP>:11434/api/chat"
 ```
 
 ### Démarrage avec Docker
@@ -104,6 +106,8 @@ ou
 python load_dev_data.py --flush
 ```
 
+ou utiliser un dump de la base de données présent dans BackEnd/data_dump.sql
+
 Pour créer un superUser :
 ```bash
 cd BackEnd
@@ -113,7 +117,7 @@ python manage.py createsuperuser
 
 Enfin, il faut lancer un server Ollama avec le modèle choisie. 
 Si on veut executer ollama sur une autre machine que celle contenant les docker, assurer que les deux machines ont un bridge et exécuter les commandes suivantes sur cmd de Windows: 
-```
+```bash
 set OLLAMA_HOST=0.0.0.0
 ollama serve
 ```
@@ -136,23 +140,26 @@ ollama serve
   - Dialogues dynamiques
   - Analyse des réponses
   - Adaptation au style du joueur
-  - Génération de scénarios
 
 ## 🔐 Variables d'Environnement
 
-### Frontend (.env)
+### Frontend (src/config/constant.ts)
 ```env
 VITE_API_URL=http://localhost:8000
 ```
 
 ### Backend (.env)
 ```env
-DB_NAME=mindprod
-DB_USER=postgres
-DB_PASSWORD=your_password
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
 DB_HOST=localhost
 DB_PORT=5432
-SECRET_KEY=your_django_secret_key
+SECRET_KEY=your_secret_key
+PGADMIN_DEFAULT_EMAIL=pg_admin_email
+PGADMIN_DEFAULT_PASSWORD=pg_admin_password
+OLLAMA_MODEL_NAME=model_ollama
+OLLAMA_URL = "http://<IP>:11434/api/chat"
 ```
 
 ## 📚 Documentation API
@@ -162,3 +169,6 @@ La documentation de l'API est disponible via Swagger UI à l'adresse :
 http://localhost:8000/api/swagger/
 ```
 
+
+## Adresse mail : 
+lea.sureau@ynov.com

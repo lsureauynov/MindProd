@@ -17,13 +17,3 @@ export interface Clue {
 }
 
 
-export interface GameMenuProps {
-  storyTitle: string;
-  onVerdictClick: () => void;
-  onTalkClick: (characterId: string) => void;
-}
-
-export interface DiscoveredClue extends BaseEntity {
-  clue:string;
-  session: string;
-}
