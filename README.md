@@ -77,9 +77,6 @@ Si vous êtes sur Linux ou Mac, vous pouvez créer un fichier makefile pour auto
 # Pour tout le projet
 docker network create mindprod_network
 
-.\build.bat
-.\up.bat
-
 # Pour le frontend uniquement
 cd FrontEnd && docker compose build
 cd FrontEnd && docker compose up
