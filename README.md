@@ -72,7 +72,7 @@ OLLAMA_URL = "http://<IP>:11434/api/chat"
 ### Démarrage avec Docker
 
 Ce système fonctionne uniquement sur Windows. Assurez-vous d'avoir Docker Desktop installé et configuré pour Windows.
-Si vous êtes sur Linux ou Mac, vous pouvez créer un fichier makefile pour automatiser les commandes.
+Si vous êtes sur Linux ou Mac, vous pouvez utiliser le fichier makefile.
 ```bash
 # Pour tout le projet
 docker network create mindprod_network
@@ -86,24 +86,19 @@ cd BackEnd && docker compose build
 cd BackEnd && docker compose up
 ```
 
+Installer ensuite ollama sur votre ordinateur et effectuer les commandes suivantes : 
+```
+ollama pull gemma3:latest
+ollama serve
+```
+
 Ensuite, il faut effectuer la migration des données : 
 ```bash
 docker exec -it mindprod_api python manage.py makemigrations
 docker exec -it mindprod_api python manage.py migrate
 ```
 
-Si on veut migrer de fausses données : 
-```bash
-cd BackEnd
-docker exec -it mindprod_api sh
-python load_dev_data.py
-```
-ou
-```bash
-python load_dev_data.py --flush
-```
-
-ou utiliser un dump de la base de données présent dans BackEnd/data_dump.sql
+Itiliser un dump de la base de données présent dans BackEnd/data_dump.sql
 
 Pour créer un superUser :
 ```bash
@@ -150,13 +145,13 @@ VITE_API_URL=http://localhost:8000
 DB_NAME=your_db_name
 DB_USER=your_db_user
 DB_PASSWORD=your_db_password
-DB_HOST=localhost
+DB_HOST="db"
 DB_PORT=5432
 SECRET_KEY=your_secret_key
 PGADMIN_DEFAULT_EMAIL=pg_admin_email
 PGADMIN_DEFAULT_PASSWORD=pg_admin_password
 OLLAMA_MODEL_NAME=model_ollama
-OLLAMA_URL = "http://<IP>:11434/api/chat"
+OLLAMA_URL = "http://localhost:11434/api/chat"
 ```
 
 ## 📚 Documentation API
